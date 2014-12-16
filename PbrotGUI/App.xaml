@@ -1,8 +1,12 @@
 ﻿<Application x:Class="PbrotGUI.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:local="clr-namespace:PbrotGUI"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
-    </Application.Resources>
+		<x:Array x:Key="RendererListString" Type="local:ComboBoxItemString">
+			<local:ComboBoxItemString ValueString="OpenMP"/>
+			<local:ComboBoxItemString ValueString="OpenCL"/>
+		</x:Array>
+	</Application.Resources>
 </Application>

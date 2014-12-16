@@ -3,6 +3,31 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Pbrot" Height="350" Width="525">
     <Grid>
-        
-    </Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="100"/>
+			<ColumnDefinition Width="100"/>
+		</Grid.ColumnDefinitions>
+		
+		<Label Grid.Row="0" Grid.Column="0" Content="Int. resolution"/>
+		<Label Grid.Row="1" Grid.Column="0" Content="Max iterations"/>
+		<Label Grid.Row="2" Grid.Column="0" Content="Min iterations"/>
+		<Label Grid.Row="3" Grid.Column="0" Content="Supersampling"/>
+		<Label Grid.Row="4" Grid.Column="0" Content="Renderer"/>
+		<Label Grid.Row="5" Grid.Column="0" Content="RAM estimate"/>
+
+		<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding GridSize}" VerticalAlignment="Center"/>
+		<TextBox Grid.Row="1" Grid.Column="1" Text="200" VerticalAlignment="Center" />
+		<TextBox Grid.Row="2" Grid.Column="1" Text="10" VerticalAlignment="Center" />
+		<TextBox Grid.Row="3" Grid.Column="1" Text="1" VerticalAlignment="Center" />
+		<ComboBox Grid.Row="4" Grid.Column="1" ItemsSource="{StaticResource RendererListString}" DisplayMemberPath="ValueString" SelectedValuePath="ValueString" SelectedValue="{Binding RendererString}"/>
+		<Label Grid.Row="5" Grid.Column="1" Content="{Binding MemoryString}"/>
+	</Grid>
 </Window>

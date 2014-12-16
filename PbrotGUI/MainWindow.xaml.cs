@@ -20,8 +20,12 @@ namespace PbrotGUI
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		private ViewModel vm = new ViewModel();
+
 		public MainWindow()
 		{
+			DataContext = vm;
+
 			InitializeComponent();
 		}
 	}
