@@ -18,7 +18,7 @@
     <ClCompile Include="lodepng.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Pbrot.c">
+    <ClCompile Include="OMPbrot.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

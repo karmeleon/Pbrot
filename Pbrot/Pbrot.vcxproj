@@ -159,7 +159,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="lodepng.c" />
-    <ClCompile Include="Pbrot.c" />
+    <ClCompile Include="OMPbrot.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lodepng.h" />

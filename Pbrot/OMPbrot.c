@@ -80,7 +80,7 @@ __inline void complexSquare(complex* n) {
 	n->b = 2 * tempA * n->b;
 }
 
-// computes the manhattan distance from x to y. sqrt is crazy slow and we don't need precision here.
+// computes the distance from x to y. sqrt is crazy slow and we don't need precision here.
 __inline fraction_t complexDistance(complex* x, complex* y) {
 	return /*sqrt*/((x->a - y->a) * (x->a - y->a) + (x->b - y->b) * (x->b - y->b));
 }

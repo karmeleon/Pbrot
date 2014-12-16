@@ -7,11 +7,11 @@
 
 #define GRID_SIZE 10000
 #define MAX_ITER 20
-#define MIN_ITER 3
+#define MIN_ITER 0
 #define GRID_RANGE 2.0
-#define MAX_ORBIT_DIST 3.0
+#define MAX_ORBIT_DIST 4.0
 
-#define SUPERSAMPLE_SIZE 4
+#define SUPERSAMPLE_SIZE 2
 
 #define bucket_t uint32_t
 #define fraction_t float
@@ -43,36 +43,23 @@ void writeImage(int width, int height, uint16_t* buffer) {
 
 uint16_t* normalizeGrid(bucket_t* grid) {
 	int i, j, x, y;
-	uint64_t max = 0;
+	bucket_t max = 0;
 	// find the largest number of hits in a single position
-	for (i = 0; i < GRID_SIZE; i += SUPERSAMPLE_SIZE) {
-		for (j = 0; j < GRID_SIZE; j += SUPERSAMPLE_SIZE) {
-			uint64_t temp = 0;
-			for (y = i; y < min(i + SUPERSAMPLE_SIZE, GRID_SIZE); y++) {
-				for (x = j; x < min(j + SUPERSAMPLE_SIZE, GRID_SIZE); x++) {
-					temp += grid[x + GRID_SIZE * y];
-				}
-			}
+	for (i = 0; i < GRID_SIZE; i++) {
+		for (j = 0; j < GRID_SIZE; j++) {
+			bucket_t temp = grid[j + GRID_SIZE * i];
 			if (temp > max)
 				max = temp;
 		}
 	}
 	printf("max is %d\n", max);
 	// then normalize it to that maximum
-	uint16_t* outGrid = (uint16_t*)malloc(sizeof(uint16_t) * (int)pow(GRID_SIZE / SUPERSAMPLE_SIZE, 2));
+	uint16_t* outGrid = (uint16_t*)malloc(sizeof(uint16_t) * GRID_SIZE * GRID_SIZE);
 
-	int gridX = 0, gridY = 0;
-	for (i = 0; i < GRID_SIZE; i += SUPERSAMPLE_SIZE, gridY++) {
-		gridX = 0;
-		for (j = 0; j < GRID_SIZE; j += SUPERSAMPLE_SIZE, gridX++) {
-			bucket_t temp = 0;
-			for (y = i; y < min(i + SUPERSAMPLE_SIZE, GRID_SIZE); y++) {
-				for (x = j; x < min(j + SUPERSAMPLE_SIZE, GRID_SIZE); x++) {
-					temp += grid[x + GRID_SIZE * y];
-				}
-			}
-			uint16_t val = log((double)temp / max) * 0xFFFF;	// the maximum value of a uint16
-			outGrid[gridX + (GRID_SIZE / SUPERSAMPLE_SIZE) * gridY] = val;
+	for (i = 0; i < GRID_SIZE; i++) {
+		for (j = 0; j < GRID_SIZE; j++) {
+			uint16_t val = ((double)grid[j + GRID_SIZE * i] / max) * 0xFFFF;	// the maximum value of a uint16
+			outGrid[j + GRID_SIZE * i] = val;
 		}
 	}
 	return outGrid;
@@ -87,16 +74,14 @@ void main() {
 	size_t dataLength = pow(GRID_SIZE, 2);
 	size_t dataSize = sizeof(bucket_t) * dataLength;
 
-	// we can only send a 1D array to the gpu, which is annoying, but not the worst thing ever
+	// we can only send a 1D array to the gpu
 	bucket_t* grid = malloc(dataSize);
-	int i;
-	for (i = 0; i < dataLength; i++) {
-		grid[i] = 0;
-	}
+	memset(grid, 0, dataSize);
 
 	int gridSize = GRID_SIZE;
 	int maxIterations = MAX_ITER;
 	int minIterations = MIN_ITER;
+	int supersampling = SUPERSAMPLE_SIZE;
 	fraction_t gridRange = GRID_RANGE;
 	fraction_t maxOrbit = MAX_ORBIT_DIST;
 
@@ -114,13 +99,15 @@ void main() {
 	hardware = sclGetGPUHardware(0, &found2);
 	software = sclGetCLSoftware("buddhabrot.cl", "buddhabrot", hardware);
 	clock_t start = clock();
+	printf("The screen is about to freeze. Don't panic, this is supposed to happen. If you decide you want it to stop, hold down the power button or unplug your computer.\n");
 	sclManageArgsLaunchKernel(hardware, software,
 		global_size, local_size,
-		"%R %a %a %a %a %a",
+		"%R %a %a %a %a %a %a",
 		dataSize, (void*)grid,				// grid
 		sizeof(int), &gridSize,				// GRID_SIZE
 		sizeof(int), &maxIterations,		// MAX_ITER
 		sizeof(int), &minIterations,		// MIN_ITER
+		sizeof(int), &supersampling,		// SUPERSAMPLE_SIZE
 		sizeof(fraction_t), &gridRange,		// GRID_RANGE
 		sizeof(fraction_t), &maxOrbit);		// MAX_ORBIT_DIST
 	clock_t calc = clock();
@@ -129,7 +116,7 @@ void main() {
 	free(grid);
 	clock_t norm = clock();
 	printf("Finished normalization in %f seconds, beginning write\n", ((double)norm - (double)calc) / CLOCKS_PER_SEC);
-	writeImage(GRID_SIZE / SUPERSAMPLE_SIZE, GRID_SIZE / SUPERSAMPLE_SIZE, normalized);
+	writeImage(GRID_SIZE, GRID_SIZE, normalized);
 	clock_t done = clock();
 	printf("Finished all operations in %f seconds.\n", ((double)done - (double)start) / CLOCKS_PER_SEC);
 	// free grids here

@@ -186,9 +186,12 @@
     <ClInclude Include="simpleCL.h" />
   </ItemGroup>
   <ItemGroup>
-		<Content Include="buddhabrot.cl">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
+    <Content Include="buddhabrot.cl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="buddhabrot.cl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
