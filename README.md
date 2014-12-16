@@ -14,3 +14,4 @@ Uses the excellent [LodePNG](http://lodev.org/lodepng/) and [SimpleCL](https://c
 
 
 ![Sample](http://i.imgur.com/Ze8sIUS.jpg)
+![Sample](http://i.imgur.com/xm8J9Dm.jpg)
