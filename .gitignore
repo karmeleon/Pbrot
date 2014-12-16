@@ -49,3 +49,6 @@ CLbrot/Win32
 CLbrot/x64
 Pbrot/Win32
 Pbrot/x64
+
+Win32/Debug
+x64/Debug
