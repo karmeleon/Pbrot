@@ -142,7 +142,7 @@ int main() {
 	bucket_t*** grid;
 	int i, j, k, rows = 0, pRows = 0;
 	int numThreads;
-#pragma omp parallel private(i, j, k, pRows) shared(grid)
+#pragma omp parallel private(i, j, k) firstprivate(pRows) shared(grid)
 	{
 #pragma omp master
 		{

@@ -45,6 +45,7 @@ Temporary Items
 
 *.pdb
 *.ilk
+*.exe.config
 
 out.png
 
@@ -52,6 +53,8 @@ CLbrot/Win32
 CLbrot/x64
 Pbrot/Win32
 Pbrot/x64
+PbrotGUI/bin
+PbrotGUI/obj
 
 Win32/Debug
 x64/Debug
