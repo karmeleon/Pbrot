@@ -45,6 +45,9 @@ Temporary Items
 
 *.pdb
 *.ilk
+
+out.png
+
 CLbrot/Win32
 CLbrot/x64
 Pbrot/Win32
