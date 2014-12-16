@@ -1,0 +1,23 @@
+﻿Build started 12/15/2014 7:36:36 PM.
+     1>Project "C:\Users\Shawn\Google Drive\GitHub\Pbrot\Pbrot\Pbrot.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /MP /Od /Ob0 /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /openmp /Fo"Win32\Debug\\" /Fd"Win32\Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt lodepng.c Pbrot.c
+     1>cl : Command line warning D9030: '/Gm' is incompatible with multiprocessing; ignoring /MP switch
+         Pbrot.c
+     1>c:\users\shawn\google drive\github\pbrot\pbrot\pbrot.c(27): warning C4101: 'j' : unreferenced local variable
+     1>c:\users\shawn\google drive\github\pbrot\pbrot\pbrot.c(67): warning C4244: 'initializing' : conversion from 'double' to 'uint16_t', possible loss of data
+     1>c:\users\shawn\google drive\github\pbrot\pbrot\pbrot.c(40): warning C4101: 'y' : unreferenced local variable
+     1>c:\users\shawn\google drive\github\pbrot\pbrot\pbrot.c(40): warning C4101: 'x' : unreferenced local variable
+     1>c:\users\shawn\google drive\github\pbrot\pbrot\pbrot.c(103): warning C4244: 'return' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\shawn\google drive\github\pbrot\pbrot\pbrot.c(126): warning C4133: 'function' : incompatible types - from 'uint16_t *' to 'const unsigned char *'
+         lodepng.c
+         Generating Code...
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Shawn\Google Drive\GitHub\Pbrot\Win32\Debug\OMPbrot.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Shawn\Google Drive\GitHub\Pbrot\Win32\Debug\OMPbrot.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Shawn\Google Drive\GitHub\Pbrot\Win32\Debug\OMPbrot.lib" /MACHINE:X86 Win32\Debug\lodepng.obj
+         Win32\Debug\Pbrot.obj
+         Pbrot.vcxproj -> C:\Users\Shawn\Google Drive\GitHub\Pbrot\Win32\Debug\OMPbrot.exe
+     1>Done Building Project "C:\Users\Shawn\Google Drive\GitHub\Pbrot\Pbrot\Pbrot.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.48
