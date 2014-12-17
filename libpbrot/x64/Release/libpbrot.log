@@ -1,0 +1,30 @@
+﻿Build started 12/16/2014 7:42:46 PM.
+     1>Project "C:\Users\Shawn\Google Drive\GitHub\Pbrot\libpbrot\libpbrot.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" /Zi /nologo /W3 /WX- /Ox /Ob2 /Oi /Ot /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D LIBPBROT_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Release\\" /Fd"x64\Release\vc120.pdb" /Gd /TC /errorReport:prompt CLinfo.c simpleCL.c test.c
+         CLinfo.c
+     1>CLinfo.c(16): warning C4172: returning address of local variable or temporary
+         simpleCL.c
+     1>simpleCL.c(196): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(211) : see declaration of 'fopen'
+     1>simpleCL.c(846): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(356) : see declaration of 'sprintf'
+     1>simpleCL.c(985): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(356) : see declaration of 'sprintf'
+     1>simpleCL.c(987): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdio.h(211) : see declaration of 'fopen'
+         test.c
+     1>test.c(6): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Shawn\Google Drive\GitHub\Pbrot\x64\Release\libpbrot.dll" /INCREMENTAL:NO /NOLOGO /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\lib\x64" OpenCL.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Shawn\Google Drive\GitHub\Pbrot\x64\Release\libpbrot.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Shawn\Google Drive\GitHub\Pbrot\x64\Release\libpbrot.lib" /MACHINE:X64 /DLL x64\Release\CLinfo.obj
+         x64\Release\simpleCL.obj
+         x64\Release\test.obj
+            Creating library C:\Users\Shawn\Google Drive\GitHub\Pbrot\x64\Release\libpbrot.lib and object C:\Users\Shawn\Google Drive\GitHub\Pbrot\x64\Release\libpbrot.exp
+         Generating code
+         Finished generating code
+         libpbrot.vcxproj -> C:\Users\Shawn\Google Drive\GitHub\Pbrot\x64\Release\libpbrot.dll
+     1>Done Building Project "C:\Users\Shawn\Google Drive\GitHub\Pbrot\libpbrot\libpbrot.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.76

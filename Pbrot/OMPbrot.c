@@ -8,9 +8,9 @@
 #include "lodepng.h"
 
 #define GRID_SIZE 10000
-#define SUPERSAMPLE_SIZE 5
-#define MAX_ITER 200
-#define MIN_ITER 0
+#define SUPERSAMPLE_SIZE 1
+#define MAX_ITER 20
+#define MIN_ITER 3
 #define GRID_RANGE 2.0
 #define MAX_ORBIT_DIST 10.0
 //#define OMP_THREADS 4
@@ -45,13 +45,17 @@ uint16_t* normalizeGrid(bucket_t*** grid, int numThreads) {
 			temp = 0;
 			for (k = 0; k < numThreads; k++) {
 				temp += grid[k][i][j];
-				//temp += grid[i][j];
 			}
 			if (temp > max)
 				max = temp;
 		}
 	}
+	/*
+	TODO
+	consolidate all data in OMP thread 0's array during normalization step, free all other arrays, then alloc the normalized array
 
+	OMP the normalization step
+	*/
 	printf("max is %d\n", max);
 	// then normalize it to that maximum
 	uint16_t* outGrid = (uint16_t*)malloc(sizeof(uint16_t) * GRID_SIZE * GRID_SIZE);
@@ -103,11 +107,6 @@ __inline int getGridCoord(fraction_t a) {
 	return a;
 }
 
-//__inline fraction_t getRandomCoord(mt_state* rng) {
-//	//return (drand48() - 0.5) * 2.0 * GRID_RANGE;
-//	return (mts_drand(rng) - 0.5) * 2.0 * GRID_RANGE;
-//}
-
 void writeImage(int width, int height, uint16_t* buffer) {
 	unsigned char* png;
 	size_t pngsize;
@@ -140,20 +139,27 @@ int main() {
 	// do math
 	fraction_t stepSize = 1.0 / (double)SUPERSAMPLE_SIZE;
 	bucket_t*** grid;
-	int i, j, k, rows = 0, pRows = 0;
+	complex** cache;
+	int i, j, k, n, x, y, thread, rows = 0, pRows = 0;
 	int numThreads;
-#pragma omp parallel private(i, j, k) firstprivate(pRows) shared(grid)
+	#pragma omp parallel private(i, j, k, n, x, y, thread) firstprivate(pRows) shared(grid)
 	{
-#pragma omp master
+		#pragma omp master
 		{
 			numThreads = omp_get_num_threads();
 			grid = malloc(sizeof(bucket_t**) * numThreads);
 			for (k = 0; k < numThreads; k++) {
 				grid[k] = createGrid(GRID_SIZE);
 			}
+
+			cache = malloc(sizeof(complex*) * numThreads);
+			for (k = 0; k < numThreads; k++) {
+				cache[k] = malloc(sizeof(complex) * (MAX_ITER - MIN_ITER));
+			}
 		}
-#pragma omp barrier
-#pragma omp for schedule(dynamic,100)
+		thread = omp_get_thread_num();
+		#pragma omp barrier
+		#pragma omp for schedule(dynamic,100)
 		for (i = 0; i < GRID_SIZE * SUPERSAMPLE_SIZE; i++) {
 			for (j = 0; j < GRID_SIZE * SUPERSAMPLE_SIZE; j++) {
 				// create and initialize c
@@ -165,47 +171,51 @@ int main() {
 				memcpy(&z, &c, sizeof(complex));
 				// then do the actual iterations
 				for (k = 0; k < MAX_ITER; k++) {
+					if (k > MIN_ITER) {
+						cache[thread][k - MIN_ITER] = z;
+					}
 					// Z_n+1 = Z_n^2 + c
 					complexSquare(&z);
 					complexAdd(&z, &c);
 					fraction_t cDist = complexDistance(&z, &c);
 					if (cDist > MAX_ORBIT_DIST) {
-						// c is NOT in the set, so start the iterations over, recording positions
-						memcpy(&z, &c, sizeof(complex));
-						for (k = 0; k < MAX_ITER; k++) {
-							complexSquare(&z);
-							complexAdd(&z, &c);
-							cDist = complexDistance(&z, &c);
-							if (cDist > MAX_ORBIT_DIST)	// this "particle" has escaped, stop calculating it
-								break;
-							int x = getGridCoord(z.a);
+						// c is NOT in the set, so read through the cached positions and record them
+						for (n = 0; n < k - MIN_ITER; n++) {
+							z = cache[thread][n];
+							x = getGridCoord(z.a);
 							if (x < 0 || x >= GRID_SIZE)	// this "particle" is outside the grid, but has not escaped yet
 								continue;
-							int y = getGridCoord(z.b);
+							y = getGridCoord(z.b);
 							if (y < 0 || y >= GRID_SIZE)	// this "particle" is outside the grid, but has not escaped yet
 								continue;
-							if (k > MIN_ITER) {
-								int thread = omp_get_thread_num();
-								grid[thread][y][x]++;
-							}
+							grid[thread][y][x]++;
 						}
 						break;
 					}
-					/*
-					int x = getGridCoord(z.a);
-					if (x < 0 || x >= GRID_SIZE)
-					continue;
-					int y = getGridCoord(z.b);
-					if (y < 0 || y >= GRID_SIZE)
-					continue;
-					if (k > MIN_ITERATIONS)
-					grid[omp_get_thread_num()][y][x]++;*/
 
+					//if (cDist > MAX_ORBIT_DIST) {
+					//	// c is NOT in the set, so start the iterations over, recording positions
+					//	memcpy(&z, &c, sizeof(complex));
+					//	for (n = 0; n < k; n++) {
+					//		complexSquare(&z);
+					//		complexAdd(&z, &c);
+					//		cDist = complexDistance(&z, &c);
+					//		x = getGridCoord(z.a);
+					//		if (x < 0 || x >= GRID_SIZE)	// this "particle" is outside the grid, but has not escaped yet
+					//			continue;
+					//		y = getGridCoord(z.b);
+					//		if (y < 0 || y >= GRID_SIZE)	// this "particle" is outside the grid, but has not escaped yet
+					//			continue;
+					//		if (n > MIN_ITER)
+					//			grid[thread][y][x]++;
+					//	}
+					//	break;
+					//}
 				}
 			}
 			pRows++;
 			if (pRows % 10 == 0) {
-#pragma omp atomic
+				#pragma omp atomic
 				rows += 10;
 				pRows = 0;
 				if (rows % 100 == 0) {
@@ -214,15 +224,13 @@ int main() {
 			}
 		}
 	}
+	for (i = 0; i < numThreads; i++) {
+		free(cache[i]);
+	}
+	free(cache);
 	clock_t calc = clock();
 	printf("Finished calculations in %f seconds, beginning normalization\n", ((double)calc - (double)start) / CLOCKS_PER_SEC);
 	uint16_t* normalized = normalizeGrid(grid, numThreads);
-	//for (y = 0; y < GRID_SIZE; y++) {
-	//	for (x = 0; x < numThreads; x++) {
-	//		free(grid[x][y]);
-	//	}
-	//	//free(grid[x]);
-	//}
 	for (i = 0; i < numThreads; i++) {
 		for (j = 0; j < GRID_SIZE; j++) {
 			free(grid[i][j]);

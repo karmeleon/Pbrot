@@ -8,5 +8,7 @@
 			<local:ComboBoxItemString ValueString="OpenMP"/>
 			<local:ComboBoxItemString ValueString="OpenCL"/>
 		</x:Array>
+		<local:OMPGridVisibilityConverter x:Key="OMPRendererConverter"/>
+		<local:OCLGridVisibilityConverter x:Key="OCLRendererConverter"/>
 	</Application.Resources>
 </Application>
