@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +20,11 @@ namespace PbrotGUI.Layouts {
 	/// Interaction logic for ImageViewerWindow.xaml
 	/// </summary>
 	public partial class ImageViewerWindow : Window {
-		public ImageViewerWindow() {
+		private ImageViewerViewModel vm;
+
+		public ImageViewerWindow(Bitmap bmp) {
+			vm = new ImageViewerViewModel(bmp);
+			DataContext = vm;
 			InitializeComponent();
 		}
 	}

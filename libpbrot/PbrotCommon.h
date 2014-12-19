@@ -12,6 +12,6 @@
 #define CLfraction_t float
 #define OMPfraction_t double
 
-uint16_t* normalizeCLGrid(CLbucket_t* grid, int gridSize);
+uint8_t* normalizeCLGrid(CLbucket_t* grid, int gridSize);
 
 void writeImage(int width, int height, uint16_t* buffer);

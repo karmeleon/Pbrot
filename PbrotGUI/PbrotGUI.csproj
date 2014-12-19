@@ -101,6 +101,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ComboBoxItemString.cs" />
+    <Compile Include="ImageViewerViewModel.cs" />
     <Compile Include="Layouts\ImageViewerWindow.xaml.cs">
       <DependentUpon>ImageViewerWindow.xaml</DependentUpon>
     </Compile>

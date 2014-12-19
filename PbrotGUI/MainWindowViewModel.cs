@@ -92,12 +92,6 @@ namespace PbrotGUI {
 
 		// holds the last image rendered
 		private Bitmap _lastImage;
-		// holds the WPF-friendly image
-		private BitmapImage _bmpImage;
-		// holds the raw 16-bit data of the image for saving full-quality .pngs
-		//private Int16[] _rawImage;
-		// holds the pointer to the last image rendered. must be freed manually
-		//private IntPtr _lastImagePtr;
 
 		#endregion
 
@@ -126,6 +120,7 @@ namespace PbrotGUI {
 				if(_gridSize.ToString() != value) {
 					_gridSize = temp;
 					NotifyPropertyChanged("MemoryString");
+					NotifyPropertyChanged("OCLBufferString");
 				}
 			}
 		}
@@ -197,10 +192,10 @@ namespace PbrotGUI {
 					kernel = reader.ReadToEnd();
 				}
 				IntPtr CLbrotResult = RunCLbrot(kernel, _selectedOCLDevice, _gridSize, _maxIterations, _minIterations, _supersampling, 2.0f, _maxOrbit);
+				// turn the array into a C# bitmap object
 				_SaveImages(CLbrotResult);
-				ImageViewerWindow newWin = new ImageViewerWindow();
+				ImageViewerWindow newWin = new ImageViewerWindow(_lastImage);
 				newWin.Show();
-				Console.WriteLine("all done!");
 			} else {
 				// OMP goes here eventually
 			}
@@ -276,47 +271,35 @@ namespace PbrotGUI {
 		#region image processing
 
 		private void _SaveImages(IntPtr data) {
-			// Fuck System.Image.Bitmap. I will be forever haunted by "A generic error occurred in GDI+"
+			if(_lastImage != null)
+				_lastImage.Dispose();
 
-			// intptr is stupid and doesn't support unsigned datatypes :(
-			//_rawImage = new Int16[_gridSize * _gridSize];
-			//Marshal.Copy(data, _rawImage, 0, (int)(_gridSize * _gridSize));
-			//Marshal.FreeCoTaskMem(data);
+			_lastImage = new Bitmap((int)_gridSize, (int)_gridSize, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
 
-			//byte[] RGBimage = new byte[_gridSize * _gridSize * 3];
-			//for(UInt64 i = 0; i < _gridSize * _gridSize; i++) {
-			//	byte curr = (byte)(_rawImage[i] >> 8);	// take the 8 most significant bits of the 16 bit data
-			//	for(byte j = 0; j < 3; j++) {
-			//		RGBimage[j + 3 * i] = curr;
-			//	}
-			//}
-			//MemoryStream stream = new MemoryStream(RGBimage);
-			//_lastImage = Image.FromStream(stream);
+			// write the image by setting the color of each pixel, one at a time. how efficient.
 
-			//UInt16[] rawImage = new UInt16[_gridSize * _gridSize];
-			//// Image class accepts 16-bit greyscale yayyyy
-			//for(UInt32 i = 0; i < _gridSize * _gridSize; i++) {
-			//	rawImage[i] = temp[i] < 0 ? (UInt16)((UInt16)(temp[i] + Int16.MaxValue) + Int16.MaxValue) : (UInt16)temp[i];
-			//}
-			// convert UInt16[] to Image
-			//if(_lastImage != null)
-			//	_lastImage.Dispose();
-			//_lastImage = new Bitmap((int)_gridSize, (int)_gridSize, System.Drawing.Imaging.PixelFormat.Format16bppGrayScale);
-			//Rectangle writeWindow = new Rectangle(0, 0, (int)_gridSize, (int)_gridSize);
-			//BitmapData bmpData = _lastImage.LockBits(writeWindow, ImageLockMode.ReadWrite, _lastImage.PixelFormat);
-			//bmpData.Scan0 = data;
-			//_lastImage.UnlockBits(bmpData);
+			byte[] buffer = new byte[_gridSize * _gridSize];
+			Marshal.Copy(data, buffer, 0, (int)(_gridSize * _gridSize));
 
-			//// then save it as a png so it's useful at all
-			//// goddamn the Bitmap class is annoying to use
-			//MemoryStream ms = new MemoryStream();
-			//ms.Position = 0;
-			//System.Threading.Thread.Sleep(50);
-			//_lastImage.Save(ms, ImageFormat.Png);
-			//BitmapImage image = new BitmapImage();
-			//image.BeginInit();
-			//image.StreamSource = ms;
-			//image.EndInit();
+			Rectangle rect = new Rectangle(0, 0, _lastImage.Width, _lastImage.Height);
+			BitmapData bmpData = _lastImage.LockBits(rect, ImageLockMode.ReadWrite, _lastImage.PixelFormat);
+
+			IntPtr firstLine = bmpData.Scan0;
+
+			int bytes = Math.Abs(bmpData.Stride) * _lastImage.Height;
+			byte[] rgbValues = new byte[bytes];
+
+			Marshal.Copy(firstLine, rgbValues, 0, bytes);
+
+			for(int i = 0; i < rgbValues.Length / 3; i++) {
+				rgbValues[3 * i] = buffer[i];
+				rgbValues[3 * i + 1] = buffer[i];
+				rgbValues[3 * i + 2] = buffer[i];
+			}
+
+			Marshal.Copy(rgbValues, 0, firstLine, bytes);
+
+			_lastImage.UnlockBits(bmpData);
 		}
 
 		#endregion
