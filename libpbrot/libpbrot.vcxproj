@@ -164,10 +164,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CLinfo.c" />
+    <ClCompile Include="CLbrot.c" />
+    <ClCompile Include="lodepng.c" />
+    <ClCompile Include="PbrotCommon.c" />
     <ClCompile Include="simpleCL.c" />
     <ClCompile Include="test.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="lodepng.h" />
+    <ClInclude Include="PbrotCommon.h" />
     <ClInclude Include="simpleCL.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

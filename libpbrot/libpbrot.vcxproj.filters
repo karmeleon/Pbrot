@@ -24,9 +24,24 @@
     <ClCompile Include="simpleCL.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CLbrot.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PbrotCommon.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lodepng.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="simpleCL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PbrotCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lodepng.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
