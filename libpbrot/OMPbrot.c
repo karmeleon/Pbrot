@@ -28,12 +28,7 @@ __inline OMPfraction_t getImgCoord(OMPfraction_t n, uint32_t gridSize, uint32_t 
 	return (temp / (OMPfraction_t)(gridSize / 2)) * gridRange;
 }
 
-__inline int getGridCoord(complex* c, uint32_t gridRange, uint32_t gridSize) {
-	/*a = (a + gridRange) / (gridRange);
-	OMPfraction_t scale = (gridSize - 1) / gridRange;
-	a *= scale;
-	return a;*/
-
+__inline int64_t getGridCoord(complex* c, uint32_t gridRange, uint32_t gridSize) {
 	// the denominator in fracs and scale may need to be gridRange * 2
 	OMPfraction_t xFrac = (c->a + gridRange) / (gridRange * 2);
 	OMPfraction_t yFrac = (c->b + gridRange) / (gridRange * 2);
@@ -43,8 +38,8 @@ __inline int getGridCoord(complex* c, uint32_t gridRange, uint32_t gridSize) {
 
 	OMPfraction_t scale = (gridSize - 1);
 
-	int32_t x = (int32_t)(xFrac * scale);
-	int32_t y = (int32_t)(yFrac * scale);
+	int64_t x = (int64_t)(xFrac * scale);
+	int64_t y = (int64_t)(yFrac * scale);
 
 	return x + y * gridSize;
 }
@@ -53,16 +48,6 @@ uint8_t* normalizeOMPGrid(OMPbucket_t** grid, int32_t numThreads, uint32_t gridS
 	uint64_t i;
 	uint32_t j, temp, max = 0;
 	// find the largest number of hits in a single position
-	/*for (i = 0; i < gridSize; i++) {
-		for (j = 0; j < gridSize; j++) {
-			temp = 0;
-			for (k = 0; k < numThreads; k++) {
-				temp += grid[k][i][j];
-			}
-			if (temp > max)
-				max = temp;
-		}
-	}*/
 	for (i = 0; i < gridSize * gridSize; i++) {
 		temp = 0;
 		for (j = 0; j < (uint32_t)numThreads; j++) {
@@ -85,24 +70,11 @@ uint8_t* normalizeOMPGrid(OMPbucket_t** grid, int32_t numThreads, uint32_t gridS
 	*/
 	// then normalize it to that maximum
 	uint8_t* outGrid = (uint8_t*)CoTaskMemAlloc(sizeof(uint8_t) * gridSize * gridSize);
-	//uint16_t* outGrid = (uint16_t*)malloc(sizeof(uint16_t) * (int)pow(GRID_SIZE / SUPERSAMPLE_SIZE, 2));
 
 	for (i = 0; i < gridSize * gridSize; i++) {
 		uint8_t val = ((double)grid[0][i] / max) * 0xFF;	// the maximum value of uint8
 		outGrid[i] = val;
 	}
-
-	//for (i = 0; i < GRID_SIZE; i++) {
-	//	for (j = 0; j < GRID_SIZE; j++) {
-	//		uint16_t temp = 0;
-	//		for (k = 0; k < numThreads; k++) {
-	//			temp += grid[k][i][j];
-	//			//temp += grid[i][j];
-	//		}
-	//		uint16_t val = ((double)temp / (double)max) * 0xffff;	// max value of uint16
-	//		outGrid[j + GRID_SIZE * i] = val;
-	//	}
-	//}
 
 	free(grid[0]);
 	free(grid);
@@ -118,8 +90,8 @@ extern __declspec(dllexport) uint8_t* RunOMPbrot(uint16_t numThreads, uint32_t g
 	OMPfraction_t stepSize = 1.0 / (double)supersampling;
 	OMPbucket_t** grid;
 	complex** cache;
-	int64_t i, j;
-	uint32_t k, n, coord, thread, rows = 0, pRows = 0;
+	int64_t i, j, coord;
+	uint32_t k, n, thread, rows = 0, pRows = 0;
 	#pragma omp parallel private(i, j, k, n, coord, thread) firstprivate(pRows) shared(grid)
 	{
 		#pragma omp master
@@ -162,7 +134,7 @@ extern __declspec(dllexport) uint8_t* RunOMPbrot(uint16_t numThreads, uint32_t g
 					OMPfraction_t cDist = complexDistance(&z, &c);
 					if (cDist > maxOrbit) {
 						// c is NOT in the set, so read through the cached positions and record them
-						for (n = 0; n < k - minIterations; n++) {
+						for (n = 0; n < k - minIterations + 1; n++) {
 							z = cache[thread][n];
 							coord = getGridCoord(&z, gridRange, gridSize);
 							if (coord == -1)
