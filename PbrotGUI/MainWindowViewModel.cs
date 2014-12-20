@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Management;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -65,6 +66,9 @@ namespace PbrotGUI {
 				Marshal.FreeCoTaskMem(devicePtr);
 				Marshal.FreeCoTaskMem(platformPtr);
 			}
+			//Marshal.FreeCoTaskMem(devices);
+			//Marshal.FreeCoTaskMem(platforms);
+			//Marshal.FreeCoTaskMem(bufferSizesPtr);
 			return output;
 		}
 
@@ -80,12 +84,9 @@ namespace PbrotGUI {
 		private UInt32 _minIterations = 0;
 		private string _rendererString = "OpenMP";
 
-		private UInt16 _OMPThreads = 1;
+		private UInt16 _OMPThreads;
 
 		private byte _selectedOCLDevice = 0;
-
-		// holds the last image rendered
-		private Bitmap _lastImage;
 
 		#endregion
 
@@ -191,9 +192,10 @@ namespace PbrotGUI {
 				result = RunOMPbrot(_OMPThreads, _gridSize, _maxIterations, _minIterations, _supersampling, 2.0, _maxOrbit);
 			}
 			// turn the array into a C# bitmap object
-			_SaveImages(result);
+			Bitmap image = _SaveImages(result);
 			// then open the viewer window with it
-			ImageViewerWindow newWin = new ImageViewerWindow(_lastImage);
+			ImageViewerWindow newWin = new ImageViewerWindow(image);
+			//image.Dispose();
 			newWin.Show();
 		}
 
@@ -215,6 +217,13 @@ namespace PbrotGUI {
 
 		public string OMPThreads {
 			get {
+				if(_OMPThreads == 0) {
+					_OMPThreads = 0;
+					foreach(var item in new ManagementObjectSearcher("Select NumberOfCores from Win32_Processor").Get()) {
+						_OMPThreads += UInt16.Parse(item["NumberOfCores"].ToString());
+					}
+					NotifyPropertyChanged("MemoryString");
+				}
 				return _OMPThreads.ToString();
 			}
 			set {
@@ -266,23 +275,19 @@ namespace PbrotGUI {
 
 		#region image processing
 
-		private void _SaveImages(IntPtr data) {
-			if(_lastImage != null)
-				_lastImage.Dispose();
-
-			_lastImage = new Bitmap((int)_gridSize, (int)_gridSize, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-
-			// write the image by setting the color of each pixel, one at a time. how efficient.
+		private Bitmap _SaveImages(IntPtr data) {
+			Bitmap image = new Bitmap((int)_gridSize, (int)_gridSize, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
 
 			byte[] buffer = new byte[_gridSize * _gridSize];
 			Marshal.Copy(data, buffer, 0, (int)(_gridSize * _gridSize));
+			Marshal.FreeCoTaskMem(data);
 
-			Rectangle rect = new Rectangle(0, 0, _lastImage.Width, _lastImage.Height);
-			BitmapData bmpData = _lastImage.LockBits(rect, ImageLockMode.ReadWrite, _lastImage.PixelFormat);
+			Rectangle rect = new Rectangle(0, 0, image.Width, image.Height);
+			BitmapData bmpData = image.LockBits(rect, ImageLockMode.ReadWrite, image.PixelFormat);
 
 			IntPtr firstLine = bmpData.Scan0;
 
-			int bytes = Math.Abs(bmpData.Stride) * _lastImage.Height;
+			int bytes = Math.Abs(bmpData.Stride) * image.Height;
 			byte[] rgbValues = new byte[bytes];
 
 			Marshal.Copy(firstLine, rgbValues, 0, bytes);
@@ -295,7 +300,9 @@ namespace PbrotGUI {
 
 			Marshal.Copy(rgbValues, 0, firstLine, bytes);
 
-			_lastImage.UnlockBits(bmpData);
+			image.UnlockBits(bmpData);
+
+			return image;
 		}
 
 		#endregion
@@ -312,9 +319,9 @@ namespace PbrotGUI {
 
 		#endregion
 
-		public void OnWindowClosing(object sender, CancelEventArgs e) {
-			if(_lastImage != null)
-				_lastImage.Dispose();
-		}
+		//public void OnWindowClosing(object sender, CancelEventArgs e) {
+		//	if(_lastImage != null)
+		//		_lastImage.Dispose();
+		//}
 	}
 }

@@ -78,5 +78,10 @@ namespace PbrotGUI {
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		#endregion
+
+		public void OnWindowClosing(object sender, CancelEventArgs e) {
+			if(_bmp != null)
+				_bmp.Dispose();
+		}
 	}
 }

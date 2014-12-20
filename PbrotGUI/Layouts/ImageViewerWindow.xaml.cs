@@ -25,6 +25,7 @@ namespace PbrotGUI.Layouts {
 		public ImageViewerWindow(Bitmap bmp) {
 			vm = new ImageViewerViewModel(bmp);
 			DataContext = vm;
+			Closing += vm.OnWindowClosing;
 			InitializeComponent();
 		}
 	}

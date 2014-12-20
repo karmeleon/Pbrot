@@ -35,13 +35,13 @@ __inline int getGridCoord(complex* c, uint32_t gridRange, uint32_t gridSize) {
 	return a;*/
 
 	// the denominator in fracs and scale may need to be gridRange * 2
-	OMPfraction_t xFrac = (c->a + gridRange) / (gridRange);
-	OMPfraction_t yFrac = (c->b + gridRange) / (gridRange);
+	OMPfraction_t xFrac = (c->a + gridRange) / (gridRange * 2);
+	OMPfraction_t yFrac = (c->b + gridRange) / (gridRange * 2);
 
 	if (xFrac < 0 || yFrac < 0 || xFrac > 1.0 || yFrac > 1.0)
 		return -1;
 
-	OMPfraction_t scale = (gridSize - 1) / (gridRange);
+	OMPfraction_t scale = (gridSize - 1);
 
 	int32_t x = (int32_t)(xFrac * scale);
 	int32_t y = (int32_t)(yFrac * scale);
@@ -74,9 +74,9 @@ uint8_t* normalizeOMPGrid(OMPbucket_t** grid, int32_t numThreads, uint32_t gridS
 			max = temp;
 	}
 
-	/*for (i = 1; i < numThreads; i++) {
+	for (i = 1; i < numThreads; i++) {
 		free(grid[i]);
-	}*/
+	}
 
 	/*
 	TODO
@@ -88,7 +88,7 @@ uint8_t* normalizeOMPGrid(OMPbucket_t** grid, int32_t numThreads, uint32_t gridS
 	//uint16_t* outGrid = (uint16_t*)malloc(sizeof(uint16_t) * (int)pow(GRID_SIZE / SUPERSAMPLE_SIZE, 2));
 
 	for (i = 0; i < gridSize * gridSize; i++) {
-		uint8_t val = (uint8_t)((double)grid[0][i] / max) * 0xFF;	// the maximum value of uint8
+		uint8_t val = ((double)grid[0][i] / max) * 0xFF;	// the maximum value of uint8
 		outGrid[i] = val;
 	}
 
@@ -137,9 +137,9 @@ extern __declspec(dllexport) uint8_t* RunOMPbrot(uint16_t numThreads, uint32_t g
 		}
 
 		thread = omp_get_thread_num();
-		memset(grid[thread], 0x00, gridSize * gridSize * sizeof(OMPbucket_t));
 		
 		#pragma omp barrier
+		memset(grid[thread], 0x00, gridSize * gridSize * sizeof(OMPbucket_t));
 		memset(cache[thread], 0x00, (maxIterations - minIterations) * sizeof(complex));
 		#pragma omp for schedule(dynamic,100)
 		for (i = 0; i < gridSize * supersampling; i++) {

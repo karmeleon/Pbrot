@@ -25,7 +25,7 @@ namespace PbrotGUI
 		public MainWindow()
 		{
 			DataContext = vm;
-			Closing += vm.OnWindowClosing;
+			//Closing += vm.OnWindowClosing;
 			InitializeComponent();
 		}
 	}

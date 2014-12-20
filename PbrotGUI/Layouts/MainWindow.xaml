@@ -20,7 +20,7 @@
 			<ColumnDefinition Width="1*"/>
 		</Grid.ColumnDefinitions>
 
-		<Label Grid.Row="0" Grid.Column="0" Content="Resolution">
+		<Label Grid.Row="0" Grid.Column="0" Content="Resolution" ToolTipService.ShowDuration="12000">
 			<Label.ToolTip>
 				<TextBlock Width="400" TextWrapping="Wrap">
 					The resolution at which to render the fractal. Higher resolution means increased
@@ -28,7 +28,7 @@
 				</TextBlock>
 			</Label.ToolTip>
 		</Label>
-		<Label Grid.Row="1" Grid.Column="0" Content="Supersampling">
+		<Label Grid.Row="1" Grid.Column="0" Content="Supersampling" ToolTipService.ShowDuration="12000">
 			<Label.ToolTip>
 				<TextBlock Width="400" TextWrapping="Wrap">
 					The amount of supersampling to be done. Increasing this amount makes the final
@@ -36,7 +36,7 @@
 				</TextBlock>
 			</Label.ToolTip>
 		</Label>
-		<Label Grid.Row="2" Grid.Column="0" Content="Max Orbit">
+		<Label Grid.Row="2" Grid.Column="0" Content="Max Orbit" ToolTipService.ShowDuration="12000">
 			<Label.ToolTip>
 				<TextBlock Width="400" TextWrapping="Wrap">
 					The Manhattan distance <Italic>z</Italic> must stray away from <Italic>c</Italic> before it is deemed part of the
@@ -45,7 +45,7 @@
 				</TextBlock>
 			</Label.ToolTip>
 		</Label>
-		<Label Grid.Row="3" Grid.Column="0" Content="Max iterations">
+		<Label Grid.Row="3" Grid.Column="0" Content="Max iterations" ToolTipService.ShowDuration="12000">
 			<Label.ToolTip>
 				<TextBlock Width="400" TextWrapping="Wrap">
 					The maximum number of iterations of the Mandelbrot sequence to calculate for a
@@ -54,7 +54,7 @@
 				</TextBlock>
 			</Label.ToolTip>
 		</Label>
-		<Label Grid.Row="4" Grid.Column="0" Content="Min iterations">
+		<Label Grid.Row="4" Grid.Column="0" Content="Min iterations" ToolTipService.ShowDuration="12000">
 			<Label.ToolTip>
 				<TextBlock Width="400" TextWrapping="Wrap">
 					The number of iterations of the Mandelbrot sequence to calculate before recording
@@ -64,7 +64,7 @@
 				</TextBlock>
 			</Label.ToolTip>
 		</Label>
-		<Label Grid.Row="5" Grid.Column="0" Content="Renderer">
+		<Label Grid.Row="5" Grid.Column="0" Content="Renderer" ToolTipService.ShowDuration="12000">
 			<Label.ToolTip>
 				<TextBlock Width="400" TextWrapping="Wrap">
 					The API to use to render the fractal. OpenCL is usually faster as it can leverage
@@ -92,7 +92,7 @@
 				<ColumnDefinition Width="1*"/>
 				<ColumnDefinition Width="1*"/>
 			</Grid.ColumnDefinitions>
-			<Label Grid.Row="0" Grid.Column="0" Content="Threads">
+			<Label Grid.Row="0" Grid.Column="0" Content="Threads" ToolTipService.ShowDuration="12000">
 				<Label.ToolTip>
 					<TextBlock Width="400" TextWrapping="Wrap">
 						Number of OpenMP threads to launch. For best results, set it to
@@ -102,7 +102,7 @@
 					</TextBlock>
 				</Label.ToolTip>
 			</Label>
-			<Label Grid.Row="1" Grid.Column="0" Content="RAM estimate">
+			<Label Grid.Row="1" Grid.Column="0" Content="RAM estimate" ToolTipService.ShowDuration="12000">
 				<Label.ToolTip>
 					<TextBlock Width="400" TextWrapping="Wrap">
 						The estimated amount of memory the rendering process will use. If
@@ -125,7 +125,7 @@
 				<ColumnDefinition Width="1*"/>
 				<ColumnDefinition Width="1*"/>
 			</Grid.ColumnDefinitions>
-			<Label Grid.Row="0" Grid.Column="0" Content="OpenCL device">
+			<Label Grid.Row="0" Grid.Column="0" Content="OpenCL device" ToolTipService.ShowDuration="12000">
 				<Label.ToolTip>
 					<TextBlock Width="400" TextWrapping="Wrap">
 						Selects the OpenCL device to render the fractal on. If a device is missing
@@ -133,7 +133,7 @@
 					</TextBlock>
 				</Label.ToolTip>
 			</Label>
-			<Label Grid.Row="1" Grid.Column="0" Content="OCL buffer est.">
+			<Label Grid.Row="1" Grid.Column="0" Content="OCL buffer est." ToolTipService.ShowDuration="12000">
 				<Label.ToolTip>
 					<TextBlock Width="400" TextWrapping="Wrap">
 						The estimated amount of memory OpenCL will use with the current settings.
@@ -142,7 +142,7 @@
 					</TextBlock>
 				</Label.ToolTip>
 			</Label>
-			<Label Grid.Row="2" Grid.Column="0" Content="Max OCL buffer">
+			<Label Grid.Row="2" Grid.Column="0" Content="Max OCL buffer" ToolTipService.ShowDuration="12000">
 				<Label.ToolTip>
 					<TextBlock Width="400" TextWrapping="Wrap">
 						The maximum amount of memory the selected OpenCL device can use.
