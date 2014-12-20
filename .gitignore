@@ -48,6 +48,7 @@ Temporary Items
 *.exe.config
 *.vshost.exe
 *.exp
+*.lib
 *.obj
 *.tlog
 
