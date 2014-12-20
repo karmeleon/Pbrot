@@ -46,6 +46,8 @@ Temporary Items
 *.pdb
 *.ilk
 *.exe.config
+*.vshost.exe
+*.exp
 *.obj
 *.tlog
 
