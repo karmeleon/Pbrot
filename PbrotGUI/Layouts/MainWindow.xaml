@@ -1,7 +1,7 @@
 ﻿<Window x:Class="PbrotGUI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Pbrot" Height="310" Width="210">
+        Title="Pbrot" Height="335" Width="225">
 	<Grid Margin="5">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
@@ -20,12 +20,59 @@
 			<ColumnDefinition Width="1*"/>
 		</Grid.ColumnDefinitions>
 
-		<Label Grid.Row="0" Grid.Column="0" Content="Resolution"/>
-		<Label Grid.Row="1" Grid.Column="0" Content="Supersampling"/>
-		<Label Grid.Row="2" Grid.Column="0" Content="Max Orbit"/>
-		<Label Grid.Row="3" Grid.Column="0" Content="Max iterations"/>
-		<Label Grid.Row="4" Grid.Column="0" Content="Min iterations"/>
-		<Label Grid.Row="5" Grid.Column="0" Content="Renderer"/>
+		<Label Grid.Row="0" Grid.Column="0" Content="Resolution">
+			<Label.ToolTip>
+				<TextBlock Width="400" TextWrapping="Wrap">
+					The resolution at which to render the fractal. Higher resolution means increased
+					detail. Increases memory usage and computation time as <Italic>O</Italic>(<Italic>n²</Italic>).
+				</TextBlock>
+			</Label.ToolTip>
+		</Label>
+		<Label Grid.Row="1" Grid.Column="0" Content="Supersampling">
+			<Label.ToolTip>
+				<TextBlock Width="400" TextWrapping="Wrap">
+					The amount of supersampling to be done. Increasing this amount makes the final
+					image smoother and less "speckled". Increases computation time as <Italic>O</Italic>(<Italic>n²</Italic>).
+				</TextBlock>
+			</Label.ToolTip>
+		</Label>
+		<Label Grid.Row="2" Grid.Column="0" Content="Max Orbit">
+			<Label.ToolTip>
+				<TextBlock Width="400" TextWrapping="Wrap">
+					The Manhattan distance <Italic>z</Italic> must stray away from <Italic>c</Italic> before it is deemed part of the
+					Buddhabrot set. Changing it can give interesting visual effects. Increases
+					computation time as <Italic>O</Italic>(<Italic>n</Italic>).
+				</TextBlock>
+			</Label.ToolTip>
+		</Label>
+		<Label Grid.Row="3" Grid.Column="0" Content="Max iterations">
+			<Label.ToolTip>
+				<TextBlock Width="400" TextWrapping="Wrap">
+					The maximum number of iterations of the Mandelbrot sequence to calculate for a
+					given <Italic>c</Italic>. Increasing it increases the contrast of the output image and changes
+					its visual structure. Increases computation time as <Italic>O</Italic>(<Italic>n</Italic>).
+				</TextBlock>
+			</Label.ToolTip>
+		</Label>
+		<Label Grid.Row="4" Grid.Column="0" Content="Min iterations">
+			<Label.ToolTip>
+				<TextBlock Width="400" TextWrapping="Wrap">
+					The number of iterations of the Mandelbrot sequence to calculate before recording
+					positions. Increasing it generally increases the contrast of the output image
+					at the cost of a small amount of detail. It can also change the resulting image's
+					visual structure significantly. No significant change in computation time or memory usage.
+				</TextBlock>
+			</Label.ToolTip>
+		</Label>
+		<Label Grid.Row="5" Grid.Column="0" Content="Renderer">
+			<Label.ToolTip>
+				<TextBlock Width="400" TextWrapping="Wrap">
+					The API to use to render the fractal. OpenCL is usually faster as it can leverage
+					the many cores and vector processing features of modern GPUs and CPUs, while OpenMP
+					relies only on multiple CPU cores.
+				</TextBlock>
+			</Label.ToolTip>
+		</Label>
 
 		<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding GridSize}" VerticalAlignment="Center"/>
 		<TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Supersampling}" VerticalAlignment="Center"/>
@@ -34,23 +81,41 @@
 		<TextBox Grid.Row="4" Grid.Column="1" Text="{Binding MinIterations}" VerticalAlignment="Center" />
 		<ComboBox Grid.Row="5" Grid.Column="1" ItemsSource="{StaticResource RendererListString}" DisplayMemberPath="ValueString" SelectedValuePath="ValueString" SelectedValue="{Binding RendererString}"/>
 
-		<Label Grid.Row="6" Grid.Column="0" Content="{Binding RendererSettingsString}"/>
-		<Grid Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding Path=RendererString, Converter={StaticResource OMPRendererConverter}}">
+		<Label Grid.Row="7" Grid.Column="0" Content="{Binding RendererSettingsString}"/>
+		<Grid Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding Path=RendererString, Converter={StaticResource OMPRendererConverter}}">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
 				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="26"/>
 			</Grid.RowDefinitions>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="1*"/>
 				<ColumnDefinition Width="1*"/>
 			</Grid.ColumnDefinitions>
-			<Label Grid.Row="0" Grid.Column="0" Content="Threads"/>
-			<Label Grid.Row="1" Grid.Column="0" Content="RAM estimate"/>
+			<Label Grid.Row="0" Grid.Column="0" Content="Threads">
+				<Label.ToolTip>
+					<TextBlock Width="400" TextWrapping="Wrap">
+						Number of OpenMP threads to launch. For best results, set it to
+						the number of physical CPU cores your computer has. Decreases
+						computation time as <Italic>O</Italic>(<Italic>n</Italic>) as long as <Italic>n</Italic> is less than or equal to
+						the number of cores your computer has. Increases memory use as <Italic>O</Italic>(<Italic>n</Italic>).
+					</TextBlock>
+				</Label.ToolTip>
+			</Label>
+			<Label Grid.Row="1" Grid.Column="0" Content="RAM estimate">
+				<Label.ToolTip>
+					<TextBlock Width="400" TextWrapping="Wrap">
+						The estimated amount of memory the rendering process will use. If
+						it's larger than the amount of memory you have free or installed,
+						expect computation time to increase dramatically.
+					</TextBlock>
+				</Label.ToolTip>
+			</Label>
 			
 			<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding OMPThreads}" VerticalAlignment="Center"/>
 			<Label Grid.Row="1" Grid.Column="1" Content="{Binding MemoryString}"/>
 		</Grid>
-		<Grid Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding Path=RendererString, Converter={StaticResource OCLRendererConverter}}">
+		<Grid Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding Path=RendererString, Converter={StaticResource OCLRendererConverter}}">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
 				<RowDefinition Height="Auto"/>
@@ -60,15 +125,38 @@
 				<ColumnDefinition Width="1*"/>
 				<ColumnDefinition Width="1*"/>
 			</Grid.ColumnDefinitions>
-			<Label Grid.Row="0" Grid.Column="0" Content="OpenCL device"/>
-			<Label Grid.Row="1" Grid.Column="0" Content="OCL buffer est."/>
-			<Label Grid.Row="2" Grid.Column="0" Content="Max OCL buffer"/>
-			
+			<Label Grid.Row="0" Grid.Column="0" Content="OpenCL device">
+				<Label.ToolTip>
+					<TextBlock Width="400" TextWrapping="Wrap">
+						Selects the OpenCL device to render the fractal on. If a device is missing
+						from this list, make sure you have its OpenCL runtime installed.
+					</TextBlock>
+				</Label.ToolTip>
+			</Label>
+			<Label Grid.Row="1" Grid.Column="0" Content="OCL buffer est.">
+				<Label.ToolTip>
+					<TextBlock Width="400" TextWrapping="Wrap">
+						The estimated amount of memory OpenCL will use with the current settings.
+						If this is greater than the maximum OpenCL buffer size below, calculations
+						will likely fail and result in a completely black output image.
+					</TextBlock>
+				</Label.ToolTip>
+			</Label>
+			<Label Grid.Row="2" Grid.Column="0" Content="Max OCL buffer">
+				<Label.ToolTip>
+					<TextBlock Width="400" TextWrapping="Wrap">
+						The maximum amount of memory the selected OpenCL device can use.
+						Nvidia actually allows considerably more memory to be allocated; if you
+						are using a Geforce or Tesla card, the actual maximum can be 2x-3x higher.
+					</TextBlock>
+				</Label.ToolTip>
+			</Label>
+
 			<ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding OCLDevices}" DisplayMemberPath="Name" SelectedValuePath="Index" SelectedIndex="{Binding SelectedOCLDevice}"/>
 			<Label Grid.Row="1" Grid.Column="1" Content="{Binding OCLBufferString}"/>
 			<Label Grid.Row="2" Grid.Column="1" Content="{Binding OCLMaxBufferString}"/>
 		</Grid>
 
-		<Button Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Content="Go!" Command="{Binding GoButton}"/>
+		<Button Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Content="Go!" Command="{Binding GoButton}"/>
 	</Grid>
 </Window>

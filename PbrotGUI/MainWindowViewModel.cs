@@ -208,8 +208,8 @@ namespace PbrotGUI {
 		public string MemoryString {
 			get {
 				// this tends to overflow when using 32-bit ints, so gridSize and OMPThreads have to be 64-bit
-				// OMP uses doubles, which are 4B each
-				return (_gridSize * _gridSize * 4 * _OMPThreads) / (1024 * 1024) + " MB";
+				// OMP uses 16-bit ints, which are 2 bytes
+				return (_gridSize * _gridSize * 2 * _OMPThreads) / (1024 * 1024) + " MB";
 			}
 		}
 
@@ -251,8 +251,8 @@ namespace PbrotGUI {
 
 		public string OCLBufferString {
 			get {
-				// OCL uses floats, which are 2B each
-				return (_gridSize * _gridSize * 2) / (1024 * 1024) + " MB";
+				// OCL uses uint32s, which are 4 bytes each
+				return (_gridSize * _gridSize * 4) / (1024 * 1024) + " MB";
 			}
 		}
 

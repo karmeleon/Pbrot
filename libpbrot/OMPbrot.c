@@ -14,7 +14,7 @@ __inline void complexSquare(complex* n) {
 
 // computes the distance from x to y. sqrt is crazy slow and we don't need precision here.
 __inline OMPfraction_t complexDistance(complex* x, complex* y) {
-	return /*sqrt*/((x->a - y->a) * (x->a - y->a) + (x->b - y->b) * (x->b - y->b));
+	return /*sqrt*/((x->a - y->a) + (x->b - y->b));
 }
 
 // adds y to x and stores the result in x
@@ -74,9 +74,9 @@ uint8_t* normalizeOMPGrid(OMPbucket_t** grid, int32_t numThreads, uint32_t gridS
 			max = temp;
 	}
 
-	for (i = 1; i < numThreads; i++) {
+	/*for (i = 1; i < numThreads; i++) {
 		free(grid[i]);
-	}
+	}*/
 
 	/*
 	TODO
@@ -88,7 +88,7 @@ uint8_t* normalizeOMPGrid(OMPbucket_t** grid, int32_t numThreads, uint32_t gridS
 	//uint16_t* outGrid = (uint16_t*)malloc(sizeof(uint16_t) * (int)pow(GRID_SIZE / SUPERSAMPLE_SIZE, 2));
 
 	for (i = 0; i < gridSize * gridSize; i++) {
-		uint8_t val = (uint8_t)((double)grid[0][i] / max) * 0xFF;	// the maximum value of a uint8
+		uint8_t val = (uint8_t)((double)grid[0][i] / max) * 0xFF;	// the maximum value of uint8
 		outGrid[i] = val;
 	}
 
@@ -99,7 +99,7 @@ uint8_t* normalizeOMPGrid(OMPbucket_t** grid, int32_t numThreads, uint32_t gridS
 	//			temp += grid[k][i][j];
 	//			//temp += grid[i][j];
 	//		}
-	//		uint16_t val = ((double)temp / (double)max) * 0xfff;	// max value of uint16
+	//		uint16_t val = ((double)temp / (double)max) * 0xffff;	// max value of uint16
 	//		outGrid[j + GRID_SIZE * i] = val;
 	//	}
 	//}
