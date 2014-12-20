@@ -4,25 +4,21 @@
 #define CLbucket_t uint32_t
 
 uint8_t* normalizeCLGrid(CLbucket_t* grid, int gridSize) {
-	int i, j;
-	CLbucket_t max = 0;
+	uint64_t i;
+	uint32_t temp, max = 0;
 	// find the largest number of hits in a single position
-	for (i = 0; i < gridSize; i++) {
-		for (j = 0; j < gridSize; j++) {
-			CLbucket_t temp = grid[j + gridSize * i];
-			if (temp > max)
-				max = temp;
-		}
+	for (i = 0; i < gridSize * gridSize; i++) {
+		temp = grid[i];
+		if (temp > max)
+			max = temp;
 	}
 	//printf("max is %d\n", max);
 	// then normalize it to that maximum
 	uint8_t* outGrid = (uint8_t*)CoTaskMemAlloc(sizeof(uint8_t) * gridSize * gridSize);
 
-	for (i = 0; i < gridSize; i++) {
-		for (j = 0; j < gridSize; j++) {
-			uint8_t val = ((double)grid[j + gridSize * i] / max) * 0xFF;	// the maximum value of a uint8
-			outGrid[j + gridSize * i] = val;
-		}
+	for (i = 0; i < gridSize * gridSize; i++) {
+		uint8_t val = ((double)grid[i] / max) * 0xFF;	// the maximum value of a uint8
+		outGrid[i] = val;
 	}
 	return outGrid;
 }

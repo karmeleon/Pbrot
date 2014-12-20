@@ -18,10 +18,6 @@ namespace PbrotGUI {
 	class MainWindowViewModel : INotifyPropertyChanged {
 
 		[DllImport("libpbrot.dll", CallingConvention = CallingConvention.Cdecl)]
-		static extern int GetString(StringBuilder str);
-
-
-		[DllImport("libpbrot.dll", CallingConvention = CallingConvention.Cdecl)]
 		static extern IntPtr GetCLDeviceStrings(out int stringCount);
 		[DllImport("libpbrot.dll", CallingConvention = CallingConvention.Cdecl)]
 		static extern IntPtr GetCLPlatformStrings(out int stringCount);
@@ -31,11 +27,9 @@ namespace PbrotGUI {
 		static extern IntPtr RunCLbrot(string kern, byte deviceNo, UInt32 gridSize, UInt32 maxIterations, UInt32 minIterations,
 										UInt32 supersampling, float gridRange, float maxOrbit);
 
-		private static string getStringFromDLL() {
-			StringBuilder str = new StringBuilder();
-			GetString(str);
-			return str.ToString();
-		}
+		[DllImport("libpbrot.dll", CallingConvention = CallingConvention.Cdecl)]
+		static extern IntPtr RunOMPbrot(UInt16 numThreads, UInt32 gridSize, UInt32 maxIterations, UInt32 minIterations,
+										UInt32 supersampling, double gridRange, double maxOrbit);
 
 		private static List<OCLDevice> getCLDevices() {
 			int stringCount = 0;
@@ -184,6 +178,7 @@ namespace PbrotGUI {
 		}
 
 		void RunBuddhabrot() {
+			IntPtr result;
 			if(_rendererString.Equals("OpenCL")) {
 				// read buddhabrot.cl from assembly
 				string kernel;
@@ -191,14 +186,15 @@ namespace PbrotGUI {
 				using(StreamReader reader = new StreamReader(stream)) {
 					kernel = reader.ReadToEnd();
 				}
-				IntPtr CLbrotResult = RunCLbrot(kernel, _selectedOCLDevice, _gridSize, _maxIterations, _minIterations, _supersampling, 2.0f, _maxOrbit);
-				// turn the array into a C# bitmap object
-				_SaveImages(CLbrotResult);
-				ImageViewerWindow newWin = new ImageViewerWindow(_lastImage);
-				newWin.Show();
+				result = RunCLbrot(kernel, _selectedOCLDevice, _gridSize, _maxIterations, _minIterations, _supersampling, 2.0f, _maxOrbit);
 			} else {
-				// OMP goes here eventually
+				result = RunOMPbrot(_OMPThreads, _gridSize, _maxIterations, _minIterations, _supersampling, 2.0, _maxOrbit);
 			}
+			// turn the array into a C# bitmap object
+			_SaveImages(result);
+			// then open the viewer window with it
+			ImageViewerWindow newWin = new ImageViewerWindow(_lastImage);
+			newWin.Show();
 		}
 
 		bool CanRunBuddhabrot() {

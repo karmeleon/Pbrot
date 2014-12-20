@@ -3,7 +3,7 @@
 #include <math.h>
 #include <time.h>
 #include <objbase.h>
-#include "lodepng.h"
+#include <omp.h>
 #include "simpleCL.h"
 
 #define CLbucket_t uint32_t
@@ -13,5 +13,3 @@
 #define OMPfraction_t double
 
 uint8_t* normalizeCLGrid(CLbucket_t* grid, int gridSize);
-
-void writeImage(int width, int height, uint16_t* buffer);

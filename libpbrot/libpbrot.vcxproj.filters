@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="test.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CLinfo.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -30,7 +27,7 @@
     <ClCompile Include="PbrotCommon.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lodepng.c">
+    <ClCompile Include="OMPbrot.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -39,9 +36,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PbrotCommon.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lodepng.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
