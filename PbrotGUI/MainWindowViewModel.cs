@@ -213,6 +213,8 @@ namespace PbrotGUI {
 			}
 		}
 
+		#region Running
+
 		private void aSyncDoWork(object sender, DoWorkEventArgs e) {
 			IntPtr result;
 			_time = new Stopwatch();
@@ -321,6 +323,8 @@ namespace PbrotGUI {
 				
 			}
 		}
+
+		#endregion running
 
 		#region OMP grid
 

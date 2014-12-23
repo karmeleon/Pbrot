@@ -10,5 +10,6 @@
 		</x:Array>
 		<local:OMPGridVisibilityConverter x:Key="OMPRendererConverter"/>
 		<local:OCLGridVisibilityConverter x:Key="OCLRendererConverter"/>
+		<local:TaskbarProgressModeConverter x:Key="TaskbarProgressModeConverter"/>
 	</Application.Resources>
 </Application>

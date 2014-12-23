@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Pbrot" Height="360" Width="225">
 	<Window.TaskbarItemInfo>
-		<TaskbarItemInfo ProgressValue="{Binding ProgressBarValue}" ProgressState="Normal"/>
+		<TaskbarItemInfo ProgressValue="{Binding ProgressBarValue}" ProgressState="{Binding Path=ProgressBarIndeterminate, Converter={StaticResource TaskbarProgressModeConverter}}"/>
 	</Window.TaskbarItemInfo>
 
 	<Grid Margin="5">

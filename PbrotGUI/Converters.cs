@@ -28,4 +28,17 @@ namespace PbrotGUI {
 			throw new NotImplementedException();
 		}
 	}
+
+	public class TaskbarProgressModeConverter : IValueConverter {
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+			bool isIndeterminate = (bool)value;
+			if(isIndeterminate)
+				return "Indeterminate";
+			return "Normal";
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
 }
