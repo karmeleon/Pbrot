@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 
-namespace PbrotGUI {
+namespace PbrotGUI.WPFThings {
 	public class OMPGridVisibilityConverter : IValueConverter {
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
 			string strValue = value as String;

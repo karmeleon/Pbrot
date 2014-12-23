@@ -2,14 +2,15 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 			 xmlns:local="clr-namespace:PbrotGUI"
+			 xmlns:wpf="clr-namespace:PbrotGUI.WPFThings"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-		<x:Array x:Key="RendererListString" Type="local:ComboBoxItemString">
-			<local:ComboBoxItemString ValueString="OpenMP"/>
-			<local:ComboBoxItemString ValueString="OpenCL"/>
+		<x:Array x:Key="RendererListString" Type="wpf:ComboBoxItemString">
+			<wpf:ComboBoxItemString ValueString="OpenMP"/>
+			<wpf:ComboBoxItemString ValueString="OpenCL"/>
 		</x:Array>
-		<local:OMPGridVisibilityConverter x:Key="OMPRendererConverter"/>
-		<local:OCLGridVisibilityConverter x:Key="OCLRendererConverter"/>
-		<local:TaskbarProgressModeConverter x:Key="TaskbarProgressModeConverter"/>
+		<wpf:OMPGridVisibilityConverter x:Key="OMPRendererConverter"/>
+		<wpf:OCLGridVisibilityConverter x:Key="OCLRendererConverter"/>
+		<wpf:TaskbarProgressModeConverter x:Key="TaskbarProgressModeConverter"/>
 	</Application.Resources>
 </Application>

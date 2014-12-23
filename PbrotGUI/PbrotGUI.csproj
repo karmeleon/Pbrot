@@ -76,6 +76,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>PbrotGUI.App</StartupObject>
@@ -102,15 +103,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ComboBoxItemString.cs" />
-    <Compile Include="ImageViewerViewModel.cs" />
+    <Compile Include="WPFThings\ComboBoxItemString.cs" />
+    <Compile Include="ViewModels\ImageViewerViewModel.cs" />
     <Compile Include="Layouts\ImageViewerWindow.xaml.cs">
       <DependentUpon>ImageViewerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="OCLDevice.cs" />
-    <Compile Include="RelayCommand.cs" />
-    <Compile Include="Converters.cs" />
-    <Compile Include="MainWindowViewModel.cs" />
+    <Compile Include="WPFThings\RelayCommand.cs" />
+    <Compile Include="WPFThings\Converters.cs" />
+    <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="WPFThings\ValidationRules.cs" />
     <Page Include="Layouts\ImageViewerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

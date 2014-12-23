@@ -4,7 +4,7 @@ using System;
 using System.Diagnostics;
 using System.Windows.Input;
 
-namespace PbrotGUI {
+namespace PbrotGUI.WPFThings {
 	public class RelayCommand : ICommand {
 		#region Members
 		readonly Func<Boolean> _canExecute;

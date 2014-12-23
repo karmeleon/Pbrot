@@ -1,7 +1,9 @@
 ﻿<Window x:Class="PbrotGUI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Pbrot" Height="360" Width="225">
+		xmlns:local="clr-namespace:PbrotGUI"
+		xmlns:wpf="clr-namespace:PbrotGUI.WPFThings"
+        Title="Pbrot" Width="225" SizeToContent="Height" ResizeMode="NoResize">
 	<Window.TaskbarItemInfo>
 		<TaskbarItemInfo ProgressValue="{Binding ProgressBarValue}" ProgressState="{Binding Path=ProgressBarIndeterminate, Converter={StaticResource TaskbarProgressModeConverter}}"/>
 	</Window.TaskbarItemInfo>
@@ -79,11 +81,51 @@
 			</Label.ToolTip>
 		</Label>
 
-		<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding GridSize}" VerticalAlignment="Center"/>
-		<TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Supersampling}" VerticalAlignment="Center"/>
-		<TextBox Grid.Row="2" Grid.Column="1" Text="{Binding MaxOrbit}" VerticalAlignment="Center"/>
-		<TextBox Grid.Row="3" Grid.Column="1" Text="{Binding MaxIterations}" VerticalAlignment="Center" />
-		<TextBox Grid.Row="4" Grid.Column="1" Text="{Binding MinIterations}" VerticalAlignment="Center" />
+		<TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
+			<TextBox.Text>
+				<Binding Path="GridSize">
+					<Binding.ValidationRules>
+						<wpf:PositiveNonzeroIntegerRule/>
+					</Binding.ValidationRules>
+				</Binding>
+			</TextBox.Text>
+		</TextBox>
+		<TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center">
+			<TextBox.Text>
+				<Binding Path="Supersampling">
+					<Binding.ValidationRules>
+						<wpf:PositiveNonzeroIntegerRule/>
+					</Binding.ValidationRules>
+				</Binding>
+			</TextBox.Text>
+		</TextBox>
+		<TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center">
+			<TextBox.Text>
+				<Binding Path="MaxOrbit">
+					<Binding.ValidationRules>
+						<wpf:PositiveNonzeroDoubleRule/>
+					</Binding.ValidationRules>
+				</Binding>
+			</TextBox.Text>
+		</TextBox>
+		<TextBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center">
+			<TextBox.Text>
+				<Binding Path="MaxIterations">
+					<Binding.ValidationRules>
+						<wpf:PositiveNonzeroIntegerRule/>
+					</Binding.ValidationRules>
+				</Binding>
+			</TextBox.Text>
+		</TextBox>
+		<TextBox Grid.Row="4" Grid.Column="1" VerticalAlignment="Center">
+			<TextBox.Text>
+				<Binding Path="MinIterations">
+					<Binding.ValidationRules>
+						<wpf:PositiveIntegerRule/>
+					</Binding.ValidationRules>
+				</Binding>
+			</TextBox.Text>
+		</TextBox>
 		<ComboBox Grid.Row="5" Grid.Column="1" ItemsSource="{StaticResource RendererListString}" DisplayMemberPath="ValueString" SelectedValuePath="ValueString" SelectedValue="{Binding RendererString}"/>
 
 		<Label Grid.Row="7" Grid.Column="0" Content="{Binding RendererSettingsString}"/>
@@ -116,8 +158,16 @@
 					</TextBlock>
 				</Label.ToolTip>
 			</Label>
-			
-			<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding OMPThreads}" VerticalAlignment="Center"/>
+
+			<TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
+				<TextBox.Text>
+					<Binding Path="OMPThreads">
+						<Binding.ValidationRules>
+							<wpf:PositiveNonzeroIntegerRule/>
+						</Binding.ValidationRules>
+					</Binding>
+				</TextBox.Text>
+			</TextBox>
 			<Label Grid.Row="1" Grid.Column="1" Content="{Binding MemoryString}"/>
 		</Grid>
 		<Grid Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding Path=RendererString, Converter={StaticResource OCLRendererConverter}}">

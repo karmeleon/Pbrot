@@ -1,17 +1,14 @@
 ﻿using Microsoft.Win32;
+using PbrotGUI.WPFThings;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
-namespace PbrotGUI {
+namespace PbrotGUI.ViewModels {
 	class ImageViewerViewModel : INotifyPropertyChanged {
 
 		private Bitmap _bmp;

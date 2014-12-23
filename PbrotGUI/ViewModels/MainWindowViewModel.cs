@@ -1,4 +1,5 @@
 ﻿using PbrotGUI.Layouts;
+using PbrotGUI.WPFThings;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,18 +8,13 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Management;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-namespace PbrotGUI {
+namespace PbrotGUI.ViewModels {
 	class MainWindowViewModel : INotifyPropertyChanged {
 
 		[DllImport("libpbrot.dll", CallingConvention = CallingConvention.Cdecl)]
@@ -130,11 +126,9 @@ namespace PbrotGUI {
 				return _rendererString;
 			}
 			set {
-				if(_rendererString != value) {
-					_rendererString = value;
-					NotifyPropertyChanged("RendererString");
-					NotifyPropertyChanged("RendererSettingsString");
-				}
+				_rendererString = value;
+				NotifyPropertyChanged("RendererString");
+				NotifyPropertyChanged("RendererSettingsString");
 			}
 		}
 
@@ -143,15 +137,9 @@ namespace PbrotGUI {
 				return _gridSize.ToString();
 			}
 			set {
-				UInt32 temp;
-				if(!UInt32.TryParse(value, out temp)) {
-					throw new ApplicationException("Invalid resolution.");
-				}
-				if(_gridSize.ToString() != value) {
-					_gridSize = temp;
-					NotifyPropertyChanged("MemoryString");
-					NotifyPropertyChanged("OCLBufferString");
-				}
+				_gridSize = UInt32.Parse(value);
+				NotifyPropertyChanged("MemoryString");
+				NotifyPropertyChanged("OCLBufferString");
 			}
 		}
 
@@ -160,9 +148,7 @@ namespace PbrotGUI {
 				return _supersampling.ToString();
 			}
 			set {
-				if(!_supersampling.ToString().Equals(value)) {
-					_supersampling = UInt32.Parse(value);
-				}
+				_supersampling = UInt32.Parse(value);
 			}
 		}
 
@@ -171,9 +157,7 @@ namespace PbrotGUI {
 				return _maxOrbit.ToString();
 			}
 			set {
-				if(!_maxOrbit.ToString().Equals(value)) {
-					_maxOrbit = UInt32.Parse(value);
-				}
+				_maxOrbit = UInt32.Parse(value);
 			}
 		}
 
@@ -182,13 +166,7 @@ namespace PbrotGUI {
 				return _minIterations.ToString();
 			}
 			set {
-				UInt32 temp;
-				if(!UInt32.TryParse(value, out temp)) {
-					throw new ApplicationException("Invalid minimum iterations.");
-				}
-				if(_gridSize.ToString() != value) {
-					_minIterations = temp;
-				}
+				_minIterations = UInt32.Parse(value);
 			}
 		}
 
@@ -197,13 +175,7 @@ namespace PbrotGUI {
 				return _maxIterations.ToString();
 			}
 			set {
-				UInt32 temp;
-				if(!UInt32.TryParse(value, out temp)) {
-					throw new ApplicationException("Invalid maximum iterations.");
-				}
-				if(_gridSize.ToString() != value) {
-					_maxIterations = temp;
-				}
+				_maxIterations = UInt32.Parse(value);
 			}
 		}
 
@@ -264,6 +236,8 @@ namespace PbrotGUI {
 		}
 
 		void RunBuddhabrot() {
+			if(_state != ProgramState.Finished && _state != ProgramState.Idle)
+				return;
 			_state = ProgramState.Calculating;
 			worker.RunWorkerAsync();
 			if(_rendererString.Equals("OpenMP")) {
@@ -300,27 +274,26 @@ namespace PbrotGUI {
 
 		public string ProgressBarText {
 			get {
+				string str = "";
 				switch(_state) {
 					case ProgramState.Idle:
-						return "Ready.";
+						str = "Ready.";
 						break;
 					case ProgramState.Calculating:
 						if(_rendererString.Equals("OpenCL")) {
-							return "Progress unavalable for OpenCL";
+							str = "Progress unavalable for OpenCL";
 						} else {
-							return _progressBarValue + " / " + (_gridSize * _supersampling) + " rows completed";
+							str = _progressBarValue + " / " + (_gridSize * _supersampling) + " rows completed";
 						}
 						break;
 					case ProgramState.Normalizing:
-						return "Generating image...";
+						str = "Generating image...";
 						break;
 					case ProgramState.Finished:
-						return "Calculated in " + _time.Elapsed.TotalSeconds.ToString("#.###") + " seconds.";
+						str = "Calculated in " + _time.Elapsed.TotalSeconds.ToString("#.###") + " seconds.";
 						break;
-					default:
-						return "what";
 				}
-				
+				return str;
 			}
 		}
 
