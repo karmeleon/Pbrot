@@ -31,7 +31,7 @@ namespace PbrotGUI.ViewModels {
 
 		[DllImport("libpbrot.dll", CallingConvention = CallingConvention.Cdecl)]
 		static extern void RunOMPbrot(UInt16 numThreads, UInt32 gridSize, UInt32 maxIterations, UInt32 minIterations,
-										UInt32 supersampling, double gridRange, double maxOrbit, IntPtr progress);
+										UInt32 supersampling, byte unsafeMode, double gridRange, double maxOrbit, IntPtr progress);
 		[DllImport("libpbrot.dll", CallingConvention = CallingConvention.Cdecl)]
 		static extern IntPtr normalizeOMPGrid();
 
@@ -107,6 +107,7 @@ namespace PbrotGUI.ViewModels {
 		private string _rendererString = "OpenMP";
 
 		private UInt16 _OMPThreads;
+		private bool _unsafeMode = false;
 
 		private byte _selectedOCLDevice = 0;
 
@@ -206,7 +207,8 @@ namespace PbrotGUI.ViewModels {
 				_OMPprogressPointer = Marshal.AllocCoTaskMem(sizeof(UInt32));
 				_progressTimer.Start();
 				_time.Start();
-				RunOMPbrot(_OMPThreads, _gridSize, _maxIterations, _minIterations, _supersampling, 2.0, _maxOrbit, _OMPprogressPointer);
+				byte isUnsafe = _unsafeMode ? (byte)1 : (byte)0;
+				RunOMPbrot(_OMPThreads, _gridSize, _maxIterations, _minIterations, _supersampling, isUnsafe, 2.0, _maxOrbit, _OMPprogressPointer);
 				_time.Stop();
 				_state = ProgramState.Normalizing;
 				result = normalizeOMPGrid();
@@ -301,21 +303,14 @@ namespace PbrotGUI.ViewModels {
 
 		#region OMP grid
 
-		public string MemoryString {
-			get {
-				// this tends to overflow when using 32-bit ints, so gridSize and OMPThreads have to be 64-bit
-				// OMP uses 16-bit ints, which are 2 bytes
-				return (_gridSize * _gridSize * 2 * _OMPThreads) / (1024 * 1024) + " MB";
-			}
-		}
-
 		public string OMPThreads {
 			get {
 				if(_OMPThreads == 0) {
 					_OMPThreads = 0;
-					foreach(var item in new ManagementObjectSearcher("Select NumberOfCores from Win32_Processor").Get()) {
-						_OMPThreads += UInt16.Parse(item["NumberOfCores"].ToString());
-					}
+					//foreach(var item in new ManagementObjectSearcher("Select NumberOfCores from Win32_Processor").Get()) {
+					//	_OMPThreads += UInt16.Parse(item["NumberOfCores"].ToString());
+					//}
+					_OMPThreads = (UInt16)Environment.ProcessorCount;
 					NotifyPropertyChanged("MemoryString");
 				}
 				return _OMPThreads.ToString();
@@ -325,6 +320,26 @@ namespace PbrotGUI.ViewModels {
 					_OMPThreads = UInt16.Parse(value);
 					NotifyPropertyChanged("MemoryString");
 				}
+			}
+		}
+
+		public bool UnsafeMode {
+			get {
+				return _unsafeMode;
+			}
+			set {
+				_unsafeMode = value;
+				NotifyPropertyChanged("MemoryString");
+			}
+		}
+
+		public string MemoryString {
+			get {
+				// this tends to overflow when using 32-bit ints, so gridSize and OMPThreads have to be 64-bit
+				// OMP uses 16-bit ints, which are 2 bytes
+				if(!UnsafeMode)
+					return (_gridSize * _gridSize * 2 * _OMPThreads) / (1024 * 1024) + " MB";
+				return (_gridSize * _gridSize * 2) / (1024 * 1024) + " MB";
 			}
 		}
 

@@ -133,7 +133,7 @@
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
 				<RowDefinition Height="Auto"/>
-				<RowDefinition Height="26"/>
+				<RowDefinition Height="Auto"/>
 			</Grid.RowDefinitions>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="1*"/>
@@ -143,13 +143,26 @@
 				<Label.ToolTip>
 					<TextBlock Width="400" TextWrapping="Wrap">
 						Number of OpenMP threads to launch. For best results, set it to
-						the number of physical CPU cores your computer has. Decreases
+						the number of logical CPU cores your computer has. Decreases
 						computation time as <Italic>O</Italic>(<Italic>n</Italic>) as long as <Italic>n</Italic> is less than or equal to
-						the number of cores your computer has. Increases memory use as <Italic>O</Italic>(<Italic>n</Italic>).
+						the number of logical cores your computer has. Increases memory use as <Italic>O</Italic>(<Italic>n</Italic>).
+						Hyperthreading can decrease compute time by as much as 30%!
 					</TextBlock>
 				</Label.ToolTip>
 			</Label>
-			<Label Grid.Row="1" Grid.Column="0" Content="RAM estimate" ToolTipService.ShowDuration="12000">
+			<Label Grid.Row="1" Grid.Column="0" Content="Unsafe mode" ToolTipService.ShowDuration="12000">
+				<Label.ToolTip>
+					<TextBlock Width="400" TextWrapping="Wrap">
+						Makes all OpenMP threads share one buffer instead of giving each one
+						its own. Causes the number of OpenMP threads to have no effect on the
+						amount of RAM used and causes a minute speedup. However, it introduces
+						a race condition that causes random artifacts to appear in the image.
+						I suggest you use it only if you have a lot of cores, not much RAM,
+						and want to use Pbrot as a benchmark rather than a fractal generator.
+					</TextBlock>
+				</Label.ToolTip>
+			</Label>
+			<Label Grid.Row="2" Grid.Column="0" Content="RAM estimate" ToolTipService.ShowDuration="12000">
 				<Label.ToolTip>
 					<TextBlock Width="400" TextWrapping="Wrap">
 						The estimated amount of memory the rendering process will use. If
@@ -168,7 +181,8 @@
 					</Binding>
 				</TextBox.Text>
 			</TextBox>
-			<Label Grid.Row="1" Grid.Column="1" Content="{Binding MemoryString}"/>
+			<CheckBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding UnsafeMode}"/>
+			<Label Grid.Row="2" Grid.Column="1" Content="{Binding MemoryString}"/>
 		</Grid>
 		<Grid Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding Path=RendererString, Converter={StaticResource OCLRendererConverter}}">
 			<Grid.RowDefinitions>

@@ -7,7 +7,6 @@ typedef struct {
 __inline void complexSquare(complex* n) {
 	// FOIL, bitches!
 	OMPfraction_t tempA = n->a;
-	//n->a = pow(n->a, 2) - pow(n->b, 2);
 	n->a = (n->a * n->a) - (n->b * n->b);
 	n->b = 2 * tempA * n->b;
 }
@@ -67,11 +66,6 @@ extern __declspec(dllexport) uint8_t* normalizeOMPGrid() {
 		free(sGrid[i]);
 	}
 
-	/*
-	TODO
-
-	OMP the normalization step
-	*/
 	// then normalize it to that maximum
 	uint8_t* outGrid = (uint8_t*)CoTaskMemAlloc(sizeof(uint8_t) * sGridSize * sGridSize);
 
@@ -86,10 +80,13 @@ extern __declspec(dllexport) uint8_t* normalizeOMPGrid() {
 	return outGrid;
 }
 
-extern __declspec(dllexport) void RunOMPbrot(uint16_t numThreads, uint32_t gridSize, uint32_t maxIterations, uint32_t minIterations,
-												uint32_t supersampling, OMPfraction_t gridRange, OMPfraction_t maxOrbit, volatile uint32_t* progress) {
+extern __declspec(dllexport) void RunOMPbrot(uint16_t numThreads, uint32_t gridSize, uint32_t maxIterations, uint32_t minIterations, uint32_t supersampling,
+												byte unsafeMode, OMPfraction_t gridRange, OMPfraction_t maxOrbit, volatile uint32_t* progress) {
 	omp_set_num_threads(numThreads);
-	sNumThreads = numThreads;
+	if (!unsafeMode)
+		sNumThreads = numThreads;
+	else
+		sNumThreads = 1;
 	sGridSize = gridSize;
 	*progress = 0;
 	//clock_t start = clock();
@@ -104,9 +101,16 @@ extern __declspec(dllexport) void RunOMPbrot(uint16_t numThreads, uint32_t gridS
 		#pragma omp master
 		{
 			numThreads = omp_get_num_threads();
-			grid = malloc(sizeof(OMPbucket_t*) * numThreads);
-			for (k = 0; k < numThreads; k++) {
-				grid[k] = malloc(sizeof(OMPbucket_t) * gridSize * gridSize);
+			if (!unsafeMode) {
+				grid = malloc(sizeof(OMPbucket_t*) * numThreads);
+				for (k = 0; k < numThreads; k++) {
+					grid[k] = malloc(sizeof(OMPbucket_t) * gridSize * gridSize);
+				}
+			}
+			else {
+				grid = malloc(sizeof(OMPbucket_t*));
+				grid[0] = malloc(sizeof(OMPbucket_t) * gridSize * gridSize);
+				memset(grid[0], 0x00, gridSize * gridSize * sizeof(OMPbucket_t));
 			}
 
 			cache = malloc(sizeof(complex*) * numThreads);
@@ -118,7 +122,8 @@ extern __declspec(dllexport) void RunOMPbrot(uint16_t numThreads, uint32_t gridS
 		thread = omp_get_thread_num();
 		
 		#pragma omp barrier
-		memset(grid[thread], 0x00, gridSize * gridSize * sizeof(OMPbucket_t));
+		if (!unsafeMode)
+			memset(grid[thread], 0x00, gridSize * gridSize * sizeof(OMPbucket_t));
 		memset(cache[thread], 0x00, (maxIterations - minIterations) * sizeof(complex));
 		#pragma omp for schedule(dynamic,100)
 		for (i = 0; i < gridSize * supersampling; i++) {
@@ -146,39 +151,20 @@ extern __declspec(dllexport) void RunOMPbrot(uint16_t numThreads, uint32_t gridS
 							coord = getGridCoord(&z, gridRange, gridSize);
 							if (coord == -1)
 								continue;
-							grid[thread][coord]++;
+							if (!unsafeMode)
+								grid[thread][coord]++;
+							else
+								grid[0][coord]++;
 						}
 						break;
 					}
-
-					//if (cDist > MAX_ORBIT_DIST) {
-					//	// c is NOT in the set, so start the iterations over, recording positions
-					//	memcpy(&z, &c, sizeof(complex));
-					//	for (n = 0; n < k; n++) {
-					//		complexSquare(&z);
-					//		complexAdd(&z, &c);
-					//		cDist = complexDistance(&z, &c);
-					//		x = getGridCoord(z.a);
-					//		if (x < 0 || x >= GRID_SIZE)	// this "particle" is outside the grid, but has not escaped yet
-					//			continue;
-					//		y = getGridCoord(z.b);
-					//		if (y < 0 || y >= GRID_SIZE)	// this "particle" is outside the grid, but has not escaped yet
-					//			continue;
-					//		if (n > MIN_ITER)
-					//			grid[thread][y][x]++;
-					//	}
-					//	break;
-					//}
 				}
 			}
 			pRows++;
-			if (pRows % 10 == 0) {
+			if (pRows % 100 == 0) {
 				#pragma omp atomic
-					*progress += 10;
+					*progress += 100;
 				pRows = 0;
-				/*if (progress % 100 == 0) {
-					printf("Finished %d rows out of %d\n", progress, gridSize * supersampling);
-				}*/
 			}
 		}
 	}
@@ -186,20 +172,6 @@ extern __declspec(dllexport) void RunOMPbrot(uint16_t numThreads, uint32_t gridS
 		free(cache[i]);
 	}
 	free(cache);
-	//clock_t calc = clock();
-	//printf("Finished calculations in %f seconds, beginning normalization\n", ((double)calc - (double)start) / CLOCKS_PER_SEC);
 
 	sGrid = grid;
-
-	//uint8_t* normalized = normalizeOMPGrid(grid, numThreads, gridSize);
-	//return normalized;
-
-
-	//clock_t norm = clock();
-	//printf("Finished normalization in %f seconds, beginning write\n", ((double)norm - (double)calc) / CLOCKS_PER_SEC);
-	//writeImage(GRID_SIZE, GRID_SIZE, normalized);
-	//clock_t done = clock();
-	//printf("Finished all operations in %f seconds.\n", ((double)done - (double)start) / CLOCKS_PER_SEC);
-	//// free grids here
-	//free(normalized);
 }
