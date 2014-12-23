@@ -11,5 +11,3 @@
 
 #define CLfraction_t float
 #define OMPfraction_t double
-
-uint8_t* normalizeCLGrid(CLbucket_t* grid, int gridSize);

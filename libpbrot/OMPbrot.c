@@ -44,23 +44,27 @@ __inline int64_t getGridCoord(complex* c, uint32_t gridRange, uint32_t gridSize)
 	return x + y * gridSize;
 }
 
-uint8_t* normalizeOMPGrid(OMPbucket_t** grid, int32_t numThreads, uint32_t gridSize) {
+static OMPbucket_t** sGrid;
+static int32_t sNumThreads;
+static uint32_t sGridSize;
+
+extern __declspec(dllexport) uint8_t* normalizeOMPGrid() {
 	uint64_t i;
 	uint32_t j, temp, max = 0;
 	// find the largest number of hits in a single position
-	for (i = 0; i < gridSize * gridSize; i++) {
+	for (i = 0; i < sGridSize * sGridSize; i++) {
 		temp = 0;
-		for (j = 0; j < (uint32_t)numThreads; j++) {
-			temp += grid[j][i];
+		for (j = 0; j < (uint32_t)sNumThreads; j++) {
+			temp += sGrid[j][i];
 		}
 		// save the sum of each thread to thread 0 to make the next step easier
-		grid[0][i] = temp;
+		sGrid[0][i] = temp;
 		if (temp > max)
 			max = temp;
 	}
 
-	for (i = 1; i < numThreads; i++) {
-		free(grid[i]);
+	for (i = 1; i < sNumThreads; i++) {
+		free(sGrid[i]);
 	}
 
 	/*
@@ -69,29 +73,32 @@ uint8_t* normalizeOMPGrid(OMPbucket_t** grid, int32_t numThreads, uint32_t gridS
 	OMP the normalization step
 	*/
 	// then normalize it to that maximum
-	uint8_t* outGrid = (uint8_t*)CoTaskMemAlloc(sizeof(uint8_t) * gridSize * gridSize);
+	uint8_t* outGrid = (uint8_t*)CoTaskMemAlloc(sizeof(uint8_t) * sGridSize * sGridSize);
 
-	for (i = 0; i < gridSize * gridSize; i++) {
-		uint8_t val = ((double)grid[0][i] / max) * 0xFF;	// the maximum value of uint8
+	for (i = 0; i < sGridSize * sGridSize; i++) {
+		uint8_t val = ((double)sGrid[0][i] / max) * 0xFF;	// the maximum value of uint8
 		outGrid[i] = val;
 	}
 
-	free(grid[0]);
-	free(grid);
+	free(sGrid[0]);
+	free(sGrid);
 
 	return outGrid;
 }
 
-extern __declspec(dllexport) uint8_t* RunOMPbrot(uint16_t numThreads, uint32_t gridSize, uint32_t maxIterations, uint32_t minIterations,
-												uint32_t supersampling, OMPfraction_t gridRange, OMPfraction_t maxOrbit) {
+extern __declspec(dllexport) void RunOMPbrot(uint16_t numThreads, uint32_t gridSize, uint32_t maxIterations, uint32_t minIterations,
+												uint32_t supersampling, OMPfraction_t gridRange, OMPfraction_t maxOrbit, volatile uint32_t* progress) {
 	omp_set_num_threads(numThreads);
+	sNumThreads = numThreads;
+	sGridSize = gridSize;
+	*progress = 0;
 	//clock_t start = clock();
 	// do math
 	OMPfraction_t stepSize = 1.0 / (double)supersampling;
 	OMPbucket_t** grid;
 	complex** cache;
 	int64_t i, j, coord;
-	uint32_t k, n, thread, rows = 0, pRows = 0;
+	uint32_t k, n, thread, pRows = 0;
 	#pragma omp parallel private(i, j, k, n, coord, thread) firstprivate(pRows) shared(grid)
 	{
 		#pragma omp master
@@ -167,11 +174,11 @@ extern __declspec(dllexport) uint8_t* RunOMPbrot(uint16_t numThreads, uint32_t g
 			pRows++;
 			if (pRows % 10 == 0) {
 				#pragma omp atomic
-					rows += 10;
+					*progress += 10;
 				pRows = 0;
-				if (rows % 100 == 0) {
-					printf("Finished %d rows out of %d\n", rows, gridSize * supersampling);
-				}
+				/*if (progress % 100 == 0) {
+					printf("Finished %d rows out of %d\n", progress, gridSize * supersampling);
+				}*/
 			}
 		}
 	}
@@ -181,8 +188,13 @@ extern __declspec(dllexport) uint8_t* RunOMPbrot(uint16_t numThreads, uint32_t g
 	free(cache);
 	//clock_t calc = clock();
 	//printf("Finished calculations in %f seconds, beginning normalization\n", ((double)calc - (double)start) / CLOCKS_PER_SEC);
-	uint8_t* normalized = normalizeOMPGrid(grid, numThreads, gridSize);
-	return normalized;
+
+	sGrid = grid;
+
+	//uint8_t* normalized = normalizeOMPGrid(grid, numThreads, gridSize);
+	//return normalized;
+
+
 	//clock_t norm = clock();
 	//printf("Finished normalization in %f seconds, beginning write\n", ((double)norm - (double)calc) / CLOCKS_PER_SEC);
 	//writeImage(GRID_SIZE, GRID_SIZE, normalized);

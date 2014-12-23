@@ -3,23 +3,27 @@
 #define CLfraction_t float
 #define CLbucket_t uint32_t
 
-uint8_t* normalizeCLGrid(CLbucket_t* grid, int gridSize) {
+static CLbucket_t* sGrid;
+static int sGridSize;
+
+extern __declspec(dllexport) uint8_t* normalizeCLGrid() {
 	uint64_t i;
 	uint32_t temp, max = 0;
 	// find the largest number of hits in a single position
-	for (i = 0; i < gridSize * gridSize; i++) {
-		temp = grid[i];
+	for (i = 0; i < sGridSize * sGridSize; i++) {
+		temp = sGrid[i];
 		if (temp > max)
 			max = temp;
 	}
 	//printf("max is %d\n", max);
 	// then normalize it to that maximum
-	uint8_t* outGrid = (uint8_t*)CoTaskMemAlloc(sizeof(uint8_t) * gridSize * gridSize);
+	uint8_t* outGrid = (uint8_t*)CoTaskMemAlloc(sizeof(uint8_t) * sGridSize * sGridSize);
 
-	for (i = 0; i < gridSize * gridSize; i++) {
-		uint8_t val = ((double)grid[i] / max) * 0xFF;	// the maximum value of a uint8
+	for (i = 0; i < sGridSize * sGridSize; i++) {
+		uint8_t val = ((double)sGrid[i] / max) * 0xFF;	// the maximum value of a uint8
 		outGrid[i] = val;
 	}
+	free(sGrid);
 	return outGrid;
 }
 
@@ -52,9 +56,11 @@ sclSoft getCLSoftwareFromString(char* source, char* name, sclHard hardware) {
 
 }
 
-extern __declspec(dllexport) uint8_t* RunCLbrot(char* kern, uint8_t deviceNo, uint32_t gridSize, uint32_t maxIterations,
+extern __declspec(dllexport) void RunCLbrot(char* kern, uint8_t deviceNo, uint32_t gridSize, uint32_t maxIterations,
 												uint32_t minIterations, uint32_t supersampling, CLfraction_t gridRange,
 												CLfraction_t maxOrbit) {
+	sGridSize = gridSize;
+	
 	sclHard hardware;
 	sclSoft software;
 
@@ -88,9 +94,8 @@ extern __declspec(dllexport) uint8_t* RunCLbrot(char* kern, uint8_t deviceNo, ui
 		sizeof(uint32_t), &supersampling,		// SUPERSAMPLE_SIZE
 		sizeof(CLfraction_t), &gridRange,		// GRID_RANGE
 		sizeof(CLfraction_t), &maxOrbit);		// MAX_ORBIT_DIST
-	clock_t calc = clock();
-	//printf("\nFinished calculations in %f seconds, beginning normalization\n", ((double)calc - (double)start) / CLOCKS_PER_SEC);
-	uint8_t* normalized = normalizeCLGrid(grid, gridSize);
-	free(grid);
-	return normalized;
+	sGrid = grid;
+	//uint8_t* normalized = normalizeCLGrid(grid, gridSize);
+	
+	//return normalized;
 }

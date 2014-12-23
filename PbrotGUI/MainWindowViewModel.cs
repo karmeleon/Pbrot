@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -11,9 +12,11 @@ using System.Management;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace PbrotGUI {
 	class MainWindowViewModel : INotifyPropertyChanged {
@@ -25,12 +28,16 @@ namespace PbrotGUI {
 		[DllImport("libpbrot.dll", CallingConvention = CallingConvention.Cdecl)]
 		static extern IntPtr GetCLMaxBufferSize(out int count);
 		[DllImport("libpbrot.dll", CallingConvention = CallingConvention.Cdecl)]
-		static extern IntPtr RunCLbrot(string kern, byte deviceNo, UInt32 gridSize, UInt32 maxIterations, UInt32 minIterations,
+		static extern void RunCLbrot(string kern, byte deviceNo, UInt32 gridSize, UInt32 maxIterations, UInt32 minIterations,
 										UInt32 supersampling, float gridRange, float maxOrbit);
+		[DllImport("libpbrot.dll", CallingConvention = CallingConvention.Cdecl)]
+		static extern IntPtr normalizeCLGrid();
 
 		[DllImport("libpbrot.dll", CallingConvention = CallingConvention.Cdecl)]
-		static extern IntPtr RunOMPbrot(UInt16 numThreads, UInt32 gridSize, UInt32 maxIterations, UInt32 minIterations,
-										UInt32 supersampling, double gridRange, double maxOrbit);
+		static extern void RunOMPbrot(UInt16 numThreads, UInt32 gridSize, UInt32 maxIterations, UInt32 minIterations,
+										UInt32 supersampling, double gridRange, double maxOrbit, IntPtr progress);
+		[DllImport("libpbrot.dll", CallingConvention = CallingConvention.Cdecl)]
+		static extern IntPtr normalizeOMPGrid();
 
 		private static List<OCLDevice> getCLDevices() {
 			int stringCount = 0;
@@ -73,9 +80,28 @@ namespace PbrotGUI {
 		}
 
 		public MainWindowViewModel() {
+			worker.DoWork += aSyncDoWork;
+			worker.RunWorkerCompleted += aSyncWorkerCompleted;
 		}
 
 		#region private fields
+
+		enum ProgramState {
+			Idle, Calculating, Normalizing, Finished
+		}
+
+		private ProgramState _currentState = ProgramState.Idle;
+		private ProgramState _state {
+			get {
+				return _currentState;
+			}
+			set {
+				_currentState = value;
+				NotifyPropertyChanged("ProgressBarText");
+				NotifyPropertyChanged("ProgressBarIndeterminate");
+				NotifyPropertyChanged("ProgressBarValue");
+			}
+		}
 
 		private UInt32 _supersampling = 1;
 		private float _maxOrbit = 8.0f;
@@ -87,6 +113,15 @@ namespace PbrotGUI {
 		private UInt16 _OMPThreads;
 
 		private byte _selectedOCLDevice = 0;
+
+		private Bitmap _lastImage;
+
+		private readonly BackgroundWorker worker = new BackgroundWorker();
+
+		private IntPtr _OMPprogressPointer;
+		private DispatcherTimer _progressTimer;
+		private double _progressBarValue = 0;
+		private Stopwatch _time;
 
 		#endregion
 
@@ -178,8 +213,9 @@ namespace PbrotGUI {
 			}
 		}
 
-		void RunBuddhabrot() {
+		private void aSyncDoWork(object sender, DoWorkEventArgs e) {
 			IntPtr result;
+			_time = new Stopwatch();
 			if(_rendererString.Equals("OpenCL")) {
 				// read buddhabrot.cl from assembly
 				string kernel;
@@ -187,16 +223,54 @@ namespace PbrotGUI {
 				using(StreamReader reader = new StreamReader(stream)) {
 					kernel = reader.ReadToEnd();
 				}
-				result = RunCLbrot(kernel, _selectedOCLDevice, _gridSize, _maxIterations, _minIterations, _supersampling, 2.0f, _maxOrbit);
+				_time.Start();
+				RunCLbrot(kernel, _selectedOCLDevice, _gridSize, _maxIterations, _minIterations, _supersampling, 2.0f, _maxOrbit);
+				_time.Stop();
+				_state = ProgramState.Normalizing;
+				result = normalizeCLGrid();
 			} else {
-				result = RunOMPbrot(_OMPThreads, _gridSize, _maxIterations, _minIterations, _supersampling, 2.0, _maxOrbit);
+				_OMPprogressPointer = Marshal.AllocCoTaskMem(sizeof(UInt32));
+				_progressTimer.Start();
+				_time.Start();
+				RunOMPbrot(_OMPThreads, _gridSize, _maxIterations, _minIterations, _supersampling, 2.0, _maxOrbit, _OMPprogressPointer);
+				_time.Stop();
+				_state = ProgramState.Normalizing;
+				result = normalizeOMPGrid();
 			}
 			// turn the array into a C# bitmap object
-			Bitmap image = _SaveImages(result);
-			// then open the viewer window with it
-			ImageViewerWindow newWin = new ImageViewerWindow(image);
+			_lastImage = _SaveImages(result);
+		}
+
+		private void aSyncWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+			if(_progressTimer != null && _progressTimer.IsEnabled)
+				_progressTimer.Stop();
+			Marshal.FreeCoTaskMem(_OMPprogressPointer);
+			ImageViewerWindow newWin = new ImageViewerWindow(_lastImage);
 			//image.Dispose();
 			newWin.Show();
+			_state = ProgramState.Finished;
+		}
+
+		private void progressTick(object sender, EventArgs e) {
+			Int32 progress = Marshal.ReadInt32(_OMPprogressPointer);
+			UInt32 actualProgress;
+			if(progress < 0)
+				actualProgress = (UInt32)(progress + Int32.MaxValue);
+			else
+				actualProgress = (UInt32)progress;
+			ProgressBarValue = actualProgress;
+		}
+
+		void RunBuddhabrot() {
+			_state = ProgramState.Calculating;
+			worker.RunWorkerAsync();
+			if(_rendererString.Equals("OpenMP")) {
+				_progressTimer = new DispatcherTimer();
+				_progressTimer.Interval = TimeSpan.FromMilliseconds(16);
+				_progressTimer.Tick += progressTick;
+			} else {
+
+			}
 		}
 
 		bool CanRunBuddhabrot() {
@@ -204,6 +278,49 @@ namespace PbrotGUI {
 		}
 
 		public ICommand GoButton { get { return new RelayCommand(RunBuddhabrot, CanRunBuddhabrot); } }
+
+		public bool ProgressBarIndeterminate {
+			get {
+				return _state == ProgramState.Normalizing || (_state == ProgramState.Calculating && _rendererString.Equals("OpenCL"));
+			}
+		}
+
+		public double ProgressBarValue {
+			get {
+				return _progressBarValue / (_gridSize * _supersampling);
+			}
+			set {
+				_progressBarValue = value;
+				NotifyPropertyChanged("ProgressBarText");
+				NotifyPropertyChanged("ProgressBarValue");
+			}
+		}
+
+		public string ProgressBarText {
+			get {
+				switch(_state) {
+					case ProgramState.Idle:
+						return "Ready.";
+						break;
+					case ProgramState.Calculating:
+						if(_rendererString.Equals("OpenCL")) {
+							return "Progress unavalable for OpenCL";
+						} else {
+							return _progressBarValue + " / " + (_gridSize * _supersampling) + " rows completed";
+						}
+						break;
+					case ProgramState.Normalizing:
+						return "Generating image...";
+						break;
+					case ProgramState.Finished:
+						return "Calculated in " + _time.Elapsed.TotalSeconds.ToString("#.###") + " seconds.";
+						break;
+					default:
+						return "what";
+				}
+				
+			}
+		}
 
 		#region OMP grid
 
@@ -319,9 +436,9 @@ namespace PbrotGUI {
 
 		#endregion
 
-		//public void OnWindowClosing(object sender, CancelEventArgs e) {
-		//	if(_lastImage != null)
-		//		_lastImage.Dispose();
-		//}
+		public void OnWindowClosing(object sender, CancelEventArgs e) {
+			if(_lastImage != null)
+				_lastImage.Dispose();
+		}
 	}
 }
