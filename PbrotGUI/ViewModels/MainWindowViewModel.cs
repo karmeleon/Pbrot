@@ -82,22 +82,11 @@ namespace PbrotGUI.ViewModels {
 
 		#region private fields
 
-		enum ProgramState {
+		public enum ProgramState {
 			Idle, Calculating, Normalizing, Finished
 		}
 
-		private ProgramState _currentState = ProgramState.Idle;
-		private ProgramState _state {
-			get {
-				return _currentState;
-			}
-			set {
-				_currentState = value;
-				NotifyPropertyChanged("ProgressBarText");
-				NotifyPropertyChanged("ProgressBarIndeterminate");
-				NotifyPropertyChanged("ProgressBarValue");
-			}
-		}
+		private ProgramState _state = ProgramState.Idle;
 
 		private UInt32 _supersampling = 1;
 		private float _maxOrbit = 8.0f;
@@ -121,6 +110,19 @@ namespace PbrotGUI.ViewModels {
 		private Stopwatch _time;
 
 		#endregion
+
+		public ProgramState State {
+			get {
+				return _state;
+			}
+			set {
+				_state = value;
+				NotifyPropertyChanged("ProgressBarText");
+				NotifyPropertyChanged("ProgressBarIndeterminate");
+				NotifyPropertyChanged("ProgressBarValue");
+				NotifyPropertyChanged("State");
+			}
+		}
 
 		public string RendererString {
 			get {
@@ -201,7 +203,7 @@ namespace PbrotGUI.ViewModels {
 				_time.Start();
 				RunCLbrot(kernel, _selectedOCLDevice, _gridSize, _maxIterations, _minIterations, _supersampling, 2.0f, _maxOrbit);
 				_time.Stop();
-				_state = ProgramState.Normalizing;
+				State = ProgramState.Normalizing;
 				result = normalizeCLGrid();
 			} else {
 				_OMPprogressPointer = Marshal.AllocCoTaskMem(sizeof(UInt32));
@@ -210,7 +212,7 @@ namespace PbrotGUI.ViewModels {
 				byte isUnsafe = _unsafeMode ? (byte)1 : (byte)0;
 				RunOMPbrot(_OMPThreads, _gridSize, _maxIterations, _minIterations, _supersampling, isUnsafe, 2.0, _maxOrbit, _OMPprogressPointer);
 				_time.Stop();
-				_state = ProgramState.Normalizing;
+				State = ProgramState.Normalizing;
 				result = normalizeOMPGrid();
 			}
 			// turn the array into a C# bitmap object
@@ -224,7 +226,7 @@ namespace PbrotGUI.ViewModels {
 			ImageViewerWindow newWin = new ImageViewerWindow(_lastImage);
 			//image.Dispose();
 			newWin.Show();
-			_state = ProgramState.Finished;
+			State = ProgramState.Finished;
 		}
 
 		private void progressTick(object sender, EventArgs e) {
@@ -238,9 +240,9 @@ namespace PbrotGUI.ViewModels {
 		}
 
 		void RunBuddhabrot() {
-			if(_state != ProgramState.Finished && _state != ProgramState.Idle)
+			if(State != ProgramState.Finished && State != ProgramState.Idle)
 				return;
-			_state = ProgramState.Calculating;
+			State = ProgramState.Calculating;
 			worker.RunWorkerAsync();
 			if(_rendererString.Equals("OpenMP")) {
 				_progressTimer = new DispatcherTimer();
@@ -259,7 +261,7 @@ namespace PbrotGUI.ViewModels {
 
 		public bool ProgressBarIndeterminate {
 			get {
-				return _state == ProgramState.Normalizing || (_state == ProgramState.Calculating && _rendererString.Equals("OpenCL"));
+				return State == ProgramState.Normalizing || (State == ProgramState.Calculating && _rendererString.Equals("OpenCL"));
 			}
 		}
 
@@ -277,7 +279,7 @@ namespace PbrotGUI.ViewModels {
 		public string ProgressBarText {
 			get {
 				string str = "";
-				switch(_state) {
+				switch(State) {
 					case ProgramState.Idle:
 						str = "Ready.";
 						break;

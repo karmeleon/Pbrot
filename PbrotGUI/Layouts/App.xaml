@@ -12,5 +12,6 @@
 		<wpf:OMPGridVisibilityConverter x:Key="OMPRendererConverter"/>
 		<wpf:OCLGridVisibilityConverter x:Key="OCLRendererConverter"/>
 		<wpf:TaskbarProgressModeConverter x:Key="TaskbarProgressModeConverter"/>
+		<wpf:StatusConverter x:Key="StatusConverter"/>
 	</Application.Resources>
 </Application>

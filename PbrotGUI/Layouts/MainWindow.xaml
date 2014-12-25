@@ -81,7 +81,7 @@
 			</Label.ToolTip>
 		</Label>
 
-		<TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
+		<TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" IsEnabled="{Binding State, Converter={StaticResource StatusConverter}}">
 			<TextBox.Text>
 				<Binding Path="GridSize">
 					<Binding.ValidationRules>
@@ -90,7 +90,7 @@
 				</Binding>
 			</TextBox.Text>
 		</TextBox>
-		<TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center">
+		<TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" IsEnabled="{Binding State, Converter={StaticResource StatusConverter}}">
 			<TextBox.Text>
 				<Binding Path="Supersampling">
 					<Binding.ValidationRules>
@@ -99,7 +99,7 @@
 				</Binding>
 			</TextBox.Text>
 		</TextBox>
-		<TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center">
+		<TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" IsEnabled="{Binding State, Converter={StaticResource StatusConverter}}">
 			<TextBox.Text>
 				<Binding Path="MaxOrbit">
 					<Binding.ValidationRules>
@@ -108,7 +108,7 @@
 				</Binding>
 			</TextBox.Text>
 		</TextBox>
-		<TextBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center">
+		<TextBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" IsEnabled="{Binding State, Converter={StaticResource StatusConverter}}">
 			<TextBox.Text>
 				<Binding Path="MaxIterations">
 					<Binding.ValidationRules>
@@ -117,7 +117,7 @@
 				</Binding>
 			</TextBox.Text>
 		</TextBox>
-		<TextBox Grid.Row="4" Grid.Column="1" VerticalAlignment="Center">
+		<TextBox Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" IsEnabled="{Binding State, Converter={StaticResource StatusConverter}}">
 			<TextBox.Text>
 				<Binding Path="MinIterations">
 					<Binding.ValidationRules>
@@ -126,7 +126,7 @@
 				</Binding>
 			</TextBox.Text>
 		</TextBox>
-		<ComboBox Grid.Row="5" Grid.Column="1" ItemsSource="{StaticResource RendererListString}" DisplayMemberPath="ValueString" SelectedValuePath="ValueString" SelectedValue="{Binding RendererString}"/>
+		<ComboBox Grid.Row="5" Grid.Column="1" ItemsSource="{StaticResource RendererListString}" DisplayMemberPath="ValueString" SelectedValuePath="ValueString" SelectedValue="{Binding RendererString}" IsEnabled="{Binding State, Converter={StaticResource StatusConverter}}"/>
 
 		<Label Grid.Row="7" Grid.Column="0" Content="{Binding RendererSettingsString}"/>
 		<Grid Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding Path=RendererString, Converter={StaticResource OMPRendererConverter}}">
@@ -172,7 +172,7 @@
 				</Label.ToolTip>
 			</Label>
 
-			<TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
+			<TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" IsEnabled="{Binding State, Converter={StaticResource StatusConverter}}">
 				<TextBox.Text>
 					<Binding Path="OMPThreads">
 						<Binding.ValidationRules>
@@ -181,7 +181,7 @@
 					</Binding>
 				</TextBox.Text>
 			</TextBox>
-			<CheckBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding UnsafeMode}"/>
+			<CheckBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding UnsafeMode}" IsEnabled="{Binding State, Converter={StaticResource StatusConverter}}"/>
 			<Label Grid.Row="2" Grid.Column="1" Content="{Binding MemoryString}"/>
 		</Grid>
 		<Grid Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding Path=RendererString, Converter={StaticResource OCLRendererConverter}}">
@@ -221,7 +221,7 @@
 				</Label.ToolTip>
 			</Label>
 
-			<ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding OCLDevices}" DisplayMemberPath="Name" SelectedValuePath="Index" SelectedIndex="{Binding SelectedOCLDevice}"/>
+			<ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding OCLDevices}" DisplayMemberPath="Name" SelectedValuePath="Index" SelectedIndex="{Binding SelectedOCLDevice}" IsEnabled="{Binding State, Converter={StaticResource StatusConverter}}"/>
 			<Label Grid.Row="1" Grid.Column="1" Content="{Binding OCLBufferString}"/>
 			<Label Grid.Row="2" Grid.Column="1" Content="{Binding OCLMaxBufferString}"/>
 		</Grid>
@@ -230,6 +230,6 @@
 			<ProgressBar Minimum="0" Maximum="1" Value="{Binding ProgressBarValue , Mode=OneWay}" IsIndeterminate="{Binding ProgressBarIndeterminate}"/>
 			<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding ProgressBarText}"/>
 		</Grid>
-		<Button Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Content="Go!" Command="{Binding GoButton}"/>
+		<Button Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Content="Go!" Command="{Binding GoButton}" IsEnabled="{Binding State, Converter={StaticResource StatusConverter}}"/>
 	</Grid>
 </Window>

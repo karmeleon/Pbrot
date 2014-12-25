@@ -37,4 +37,18 @@ namespace PbrotGUI.WPFThings {
 			throw new NotImplementedException();
 		}
 	}
+
+	public class StatusConverter : IValueConverter {
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+			// C# really needs to get its enum namespacing to work :/
+			if((PbrotGUI.ViewModels.MainWindowViewModel.ProgramState)value == PbrotGUI.ViewModels.MainWindowViewModel.ProgramState.Idle
+				|| (PbrotGUI.ViewModels.MainWindowViewModel.ProgramState)value == PbrotGUI.ViewModels.MainWindowViewModel.ProgramState.Finished)
+				return true;
+			return false;
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
 }
