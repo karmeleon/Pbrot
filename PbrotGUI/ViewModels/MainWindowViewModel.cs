@@ -11,6 +11,8 @@ using System.IO;
 using System.Management;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -75,7 +77,8 @@ namespace PbrotGUI.ViewModels {
 			return output;
 		}
 
-		public MainWindowViewModel() {
+		public MainWindowViewModel(Grid ParentGrid) {
+			_parentGrid = ParentGrid;
 			worker.DoWork += aSyncDoWork;
 			worker.RunWorkerCompleted += aSyncWorkerCompleted;
 		}
@@ -109,6 +112,9 @@ namespace PbrotGUI.ViewModels {
 		private double _progressBarValue = 0;
 		private Stopwatch _time;
 
+		// validation with mvvm is really difficult :(
+		private Grid _parentGrid;
+
 		#endregion
 
 		public ProgramState State {
@@ -121,6 +127,13 @@ namespace PbrotGUI.ViewModels {
 				NotifyPropertyChanged("ProgressBarIndeterminate");
 				NotifyPropertyChanged("ProgressBarValue");
 				NotifyPropertyChanged("State");
+			}
+		}
+
+		public bool HasErrors {
+			get {
+				return Validation.GetHasError(_parentGrid);
+				//return _hasErrors;
 			}
 		}
 

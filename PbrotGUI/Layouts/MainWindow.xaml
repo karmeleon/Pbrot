@@ -8,7 +8,7 @@
 		<TaskbarItemInfo ProgressValue="{Binding ProgressBarValue}" ProgressState="{Binding Path=ProgressBarIndeterminate, Converter={StaticResource TaskbarProgressModeConverter}}"/>
 	</Window.TaskbarItemInfo>
 
-	<Grid Margin="5">
+	<Grid Margin="5" Name="MainGrid">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="Auto"/>

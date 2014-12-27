@@ -24,9 +24,6 @@
     <ClCompile Include="CLbrot.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PbrotCommon.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="OMPbrot.c">
       <Filter>Source Files</Filter>
     </ClCompile>

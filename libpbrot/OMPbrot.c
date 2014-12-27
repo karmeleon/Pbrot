@@ -22,7 +22,7 @@ __inline void complexAdd(complex* x, complex* y) {
 	x->b += y->b;
 }
 
-__inline OMPfraction_t getImgCoord(OMPfraction_t n, uint32_t gridSize, uint32_t gridRange) {
+__inline OMPfraction_t getImgCoord(OMPfraction_t n, uint32_t gridSize, OMPfraction_t gridRange) {
 	OMPfraction_t temp = n - gridSize / 2;
 	return (temp / (OMPfraction_t)(gridSize / 2)) * gridRange;
 }
@@ -35,7 +35,7 @@ __inline int64_t getGridCoord(complex* c, uint32_t gridRange, uint32_t gridSize)
 	if (xFrac < 0 || yFrac < 0 || xFrac > 1.0 || yFrac > 1.0)
 		return -1;
 
-	OMPfraction_t scale = (gridSize - 1);
+	int64_t scale = (gridSize - 1);
 
 	int64_t x = (int64_t)(xFrac * scale);
 	int64_t y = (int64_t)(yFrac * scale);
@@ -81,7 +81,7 @@ extern __declspec(dllexport) uint8_t* normalizeOMPGrid() {
 }
 
 extern __declspec(dllexport) void RunOMPbrot(uint16_t numThreads, uint32_t gridSize, uint32_t maxIterations, uint32_t minIterations, uint32_t supersampling,
-												byte unsafeMode, OMPfraction_t gridRange, OMPfraction_t maxOrbit, volatile uint32_t* progress) {
+												byte unsafeMode, double gridRange, double maxOrbit, volatile uint32_t* progress) {
 	omp_set_num_threads(numThreads);
 	if (!unsafeMode)
 		sNumThreads = numThreads;
@@ -91,7 +91,7 @@ extern __declspec(dllexport) void RunOMPbrot(uint16_t numThreads, uint32_t gridS
 	*progress = 0;
 	//clock_t start = clock();
 	// do math
-	OMPfraction_t stepSize = 1.0 / (double)supersampling;
+	OMPfraction_t stepSize = 1.0 / (OMPfraction_t)supersampling;
 	OMPbucket_t** grid;
 	complex** cache;
 	int64_t i, j, coord;
@@ -137,13 +137,13 @@ extern __declspec(dllexport) void RunOMPbrot(uint16_t numThreads, uint32_t gridS
 				memcpy(&z, &c, sizeof(complex));
 				// then do the actual iterations
 				for (k = 0; k < maxIterations; k++) {
-					if (k >= minIterations) {
-						cache[thread][k - minIterations] = z;
-					}
 					// Z_n+1 = Z_n^2 + c
 					complexSquare(&z);
 					complexAdd(&z, &c);
 					OMPfraction_t cDist = complexDistance(&z, &c);
+					if (k >= minIterations) {
+						cache[thread][k - minIterations] = z;
+					}
 					if (cDist > maxOrbit) {
 						// c is NOT in the set, so read through the cached positions and record them
 						for (n = 0; n < k - minIterations + 1; n++) {

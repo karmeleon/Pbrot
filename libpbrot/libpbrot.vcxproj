@@ -132,6 +132,9 @@
       <CompileAs>CompileAsC</CompileAs>
       <AdditionalIncludeDirectories>$(CUDA_PATH)\include</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -156,6 +159,11 @@
       <CompileAs>CompileAsC</CompileAs>
       <AdditionalIncludeDirectories>$(CUDA_PATH)\include</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <OmitFramePointers>true</OmitFramePointers>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -170,7 +178,6 @@
     <ClCompile Include="CLinfo.c" />
     <ClCompile Include="CLbrot.c" />
     <ClCompile Include="OMPbrot.c" />
-    <ClCompile Include="PbrotCommon.c" />
     <ClCompile Include="simpleCL.c" />
   </ItemGroup>
   <ItemGroup>

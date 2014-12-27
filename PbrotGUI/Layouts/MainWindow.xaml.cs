@@ -8,10 +8,11 @@ namespace PbrotGUI
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private MainWindowViewModel vm = new MainWindowViewModel();
+		private MainWindowViewModel vm;
 
 		public MainWindow()
 		{
+			vm = new MainWindowViewModel(MainGrid);
 			DataContext = vm;
 			//Closing += vm.OnWindowClosing;
 			InitializeComponent();
