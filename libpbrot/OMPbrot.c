@@ -13,7 +13,7 @@ __inline void complexSquare(complex* n) {
 
 // computes the distance from x to y. sqrt is crazy slow and we don't need precision here.
 __inline OMPfraction_t complexDistance(complex* x, complex* y) {
-	return /*sqrt*/((x->a - y->a) + (x->b - y->b));
+	return /*sqrt*/(abs(x->a - y->a) + abs(x->b - y->b));
 }
 
 // adds y to x and stores the result in x

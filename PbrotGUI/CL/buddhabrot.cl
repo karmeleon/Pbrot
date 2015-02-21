@@ -16,7 +16,7 @@ void complexSquare(complex* n) {
 // computes the distance from x to y. sqrt is crazy slow and we don't need precision here.
 fraction_t complexDistance(complex* x, complex* y) {
 	//return sqrt(pow(x->a - y->a, 2) + pow(x->b - y->b, 2));
-	return /*sqrt*/((x->a - y->a) + (x->b - y->b));
+	return /*sqrt*/(fabs(x->a - y->a) + fabs(x->b - y->b));
 }
 
 // adds y to x and stores the result in x
