@@ -80,7 +80,7 @@ namespace PbrotGUI.ViewModels {
 		public MainWindowViewModel(Grid ParentGrid) {
 			_parentGrid = ParentGrid;
 			worker.DoWork += aSyncDoWork;
-			worker.RunWorkerCompleted += aSyncWorkerCompleted;
+			worker.RunWorkerCompleted += ASyncWorkerCompleted;
 		}
 
 		#region private fields
@@ -232,7 +232,7 @@ namespace PbrotGUI.ViewModels {
 			_lastImage = _SaveImages(result);
 		}
 
-		private void aSyncWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+		private void ASyncWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
 			if(_progressTimer != null && _progressTimer.IsEnabled)
 				_progressTimer.Stop();
 			Marshal.FreeCoTaskMem(_OMPprogressPointer);

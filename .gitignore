@@ -54,14 +54,12 @@ Temporary Items
 
 out.png
 
-CLbrot/Win32
 CLbrot/x64
-Pbrot/Win32
 Pbrot/x64
 PbrotGUI/bin
 PbrotGUI/obj
-libpbrot/Win32
 libpbrot/x64
 
-Win32/Debug
 x64/Debug
+
+.vs

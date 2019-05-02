@@ -10,4 +10,4 @@
 #define OMPbucket_t uint16_t
 
 #define CLfraction_t float
-#define OMPfraction_t double
+#define OMPfraction_t float
